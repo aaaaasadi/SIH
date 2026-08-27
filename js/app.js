@@ -347,11 +347,12 @@ window.openSaveSignupPrompt = function(actionType = 'generic', onDismiss = null,
 class AppController {
   constructor() {
     this.contentBody = null;
+    this.currentView = 'dashboard';
     this.init();
   }
 
   init() {
-    document.addEventListener('DOMContentLoaded', () => {
+    const setup = () => {
       this.contentBody = document.getElementById('main-content-body');
       this.bindNavigation();
       this.renderSidebarProfile();
@@ -360,7 +361,13 @@ class AppController {
       store.subscribe(() => {
         this.renderSidebarProfile();
       });
-    });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setup);
+    } else {
+      setup();
+    }
   }
 
   renderSidebarProfile() {
