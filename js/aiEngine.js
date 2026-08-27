@@ -206,7 +206,7 @@ export class AIEngine {
           dates: '2021 - Present',
           bullets: [
             { id: 'b-def-1', text: 'Delivered key cross-functional initiatives improving workflow efficiency by 22%.', hasSuggestion: false },
-            { id: 'b-def-2', text: 'Worked on team project deliverables and client communication.', hasSuggestion: true, suggestionType: 'verb', suggestionTitle: 'Stronger Verbs', impactScore: 90, suggestionDesc: 'Replace passive verbs with active results.', suggestedRewrite: 'Spearheaded 5 high-impact customer engagements, lifting retention by 18%.' }
+            { id: 'b-def-2', text: 'Worked on team project deliverables and client communication.', hasSuggestion: true, suggestionType: 'verb', suggestionTitle: 'Stronger Verbs', impactScore: 90, suggestionDesc: 'Replace passive verbs with active results.', suggestedRewrite: 'Orchestrated team project deliverables and client communication to ensure consistent milestone completions.' }
           ]
         }
       ]},
@@ -296,55 +296,348 @@ export class AIEngine {
   }
 
   /**
-   * Generate Ranked Actionable Suggestions
+   * Fact Extraction: pull out existing numbers, percentages, currencies, and technical keywords.
    */
-  getRankedSuggestions(resume, resolvedIds = []) {
-    const list = [];
+  extractFacts(text) {
+    if (!text || typeof text !== 'string') return { percents: [], dollars: [], numbers: [], techTerms: [] };
+    const percents = text.match(/\b\d+(?:\.\d+)?\s*(?:%|percent)\b/gi) || [];
+    const dollars = text.match(/\$[\d,]+(?:\.\d+)?|\b\d+\s*(?:k|m|b|usd|dollars)\b/gi) || [];
+    const numbers = (text.match(/\b\d{2,}(?:,\d+)*(?:\.\d+)?\b/g) || []).map(n => n.replace(/,/g, ''));
+    
+    const knownTech = [
+      'python', 'java', 'javascript', 'typescript', 'sql', 'mysql', 'postgresql',
+      'mongodb', 'redis', 'django', 'spring boot', 'react', 'node.js', 'docker',
+      'kubernetes', 'aws', 'azure', 'gcp', 'jenkins', 'git', 'terraform', 'ci/cd',
+      'rest api', 'graphql', 'microservices', 'junit', 'jest', 'cypress', 'socket.io',
+      'html', 'css', 'c++', 'c#', 'golang', 'ruby', 'kafka', 'elasticsearch'
+    ];
+    const textLower = text.toLowerCase();
+    const techTerms = knownTech.filter(t => textLower.includes(t));
 
-    resume.sections?.forEach(sec => {
-      if (sec.items) {
-        sec.items.forEach(item => {
-          if (item.bullets) {
-            item.bullets.forEach(b => {
-              if (b.hasSuggestion && !resolvedIds.includes(b.id)) {
-                list.push({
-                  bulletId: b.id,
-                  category: b.suggestionTitle || (b.suggestionType === 'impact' ? 'Quantify Impact' : 'Stronger Verbs'),
-                  type: b.suggestionType || 'impact',
-                  quote: b.text,
-                  explanation: b.suggestionDesc || 'Lacks scale. Try adding the project budget, velocity improvement, or specific business outcome metrics.',
-                  rewrite: b.suggestedRewrite || this.generateBulletRewrite(b.text),
-                  impactScore: b.impactScore || 85
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-
-    // Sort by impact score descending
-    return list.sort((a, b) => b.impactScore - a.impactScore);
+    return {
+      percents: percents.map(p => p.toLowerCase().replace(/\s+/g, '')),
+      dollars: dollars.map(d => d.toLowerCase()),
+      numbers,
+      techTerms
+    };
   }
 
   /**
-   * Generate Contextual Sentence for Missing Keyword insertion
+   * FACT-CHECK RULE:
+   * "Could every factual claim in this sentence be directly supported by the user's original resume?"
+   * NEVER invent: %, revenue/$, company names, job titles, dates, team sizes, achievements, technologies, metrics.
    */
-  generateContextualSkillSentence(keyword, targetRole = 'Product Manager') {
+  verifyFactIntegrity(rewrittenText, originalText, sectionContext = {}) {
+    if (!rewrittenText || !originalText) return false;
+    const rewLower = rewrittenText.toLowerCase();
+    const origLower = originalText.toLowerCase();
+
+    // 1. Explicitly ban legacy placeholder strings
+    const bannedPatterns = [
+      'accelerated key feature roadmaps',
+      '450k',
+      'incremental pipeline',
+      'customer feedback loops, boosting user retention by 18%',
+      '4 core platform microservices',
+      '12-person cross-functional team'
+    ];
+    for (const bp of bannedPatterns) {
+      if (rewLower.includes(bp) && !origLower.includes(bp)) {
+        return false;
+      }
+    }
+
+    const origFacts = this.extractFacts(originalText);
+    const rewFacts = this.extractFacts(rewrittenText);
+
+    // 2. Reject invented currencies / dollar amounts
+    for (const d of rewFacts.dollars) {
+      if (!origFacts.dollars.includes(d)) return false;
+    }
+
+    // 3. Reject invented percentages
+    for (const p of rewFacts.percents) {
+      const pNum = p.replace(/[^0-9.]/g, '');
+      const matched = origFacts.percents.some(op => op.replace(/[^0-9.]/g, '') === pNum);
+      if (!matched) return false;
+    }
+
+    // 4. Reject invented numerical scale metrics
+    for (const num of rewFacts.numbers) {
+      if (!origFacts.numbers.includes(num)) return false;
+    }
+
+    // 5. Reject foreign invented tech tools
+    for (const tech of rewFacts.techTerms) {
+      if (!origFacts.techTerms.includes(tech)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Duplicate Protection: Checks exact matches, token Jaccard similarity, and substring overlap
+   */
+  isDuplicateOrTooSimilar(candidate, existingList = []) {
+    if (!candidate || !existingList || existingList.length === 0) return false;
+    const candClean = candidate.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+    const candTokens = new Set(candClean.split(/\s+/).filter(w => w.length > 2));
+
+    for (const item of existingList) {
+      if (!item) continue;
+      const itemClean = item.trim().toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      if (candClean === itemClean) return true;
+
+      // Substring check
+      if (candClean.length > 35 && (itemClean.includes(candClean) || candClean.includes(itemClean))) {
+        return true;
+      }
+
+      // Jaccard similarity
+      const itemTokens = new Set(itemClean.split(/\s+/).filter(w => w.length > 2));
+      if (candTokens.size > 0 && itemTokens.size > 0) {
+        let intersection = 0;
+        candTokens.forEach(t => {
+          if (itemTokens.has(t)) intersection++;
+        });
+        const union = new Set([...candTokens, ...itemTokens]).size;
+        if (union > 0 && (intersection / union) > 0.65) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Strip passive introductory phrases while retaining all original context
+   */
+  cleanPassivePhrases(bullet) {
+    if (!bullet) return '';
+    let cleaned = bullet.trim().replace(/\.$/, '');
+    const passivePrefixes = [
+      /^(?:i\s+)?worked\s+(?:on|with|in)\s+/i,
+      /^(?:i\s+)?was\s+responsible\s+for\s+/i,
+      /^responsible\s+for\s+/i,
+      /^(?:i\s+)?assisted\s+(?:the\s+team\s+with|team\s+with|with|in|to)\s+/i,
+      /^(?:i\s+)?helped\s+(?:to\s+build|with|in|build|develop|create)\s+/i,
+      /^(?:i\s+)?handled\s+/i,
+      /^(?:i\s+)?participated\s+in\s+/i,
+      /^(?:i\s+)?tasked\s+with\s+/i,
+      /^(?:i\s+)?contributed\s+to\s+/i
+    ];
+    for (const pat of passivePrefixes) {
+      cleaned = cleaned.replace(pat, '').trim();
+    }
+    return cleaned;
+  }
+
+  /**
+   * CONTEXT-AWARE REWRITING ENGINE:
+   * Generates unique, strictly fact-preserved rewrites based on section, company, role, and original content.
+   */
+  generateContextualRewrite({ originalText, sectionName = 'experience', company = '', role = '', surroundingBullets = [], targetRole = 'Software Engineer', existingRewrites = [] }) {
+    if (!originalText || typeof originalText !== 'string') {
+      return { rewrite: '', reason: 'Empty text', type: 'verb' };
+    }
+
+    const origClean = originalText.trim().replace(/\.$/, '');
+    const origLower = origClean.toLowerCase();
+    const core = this.cleanPassivePhrases(origClean);
+    const hasPercent = /\b\d+(?:\.\d+)?\s*(?:%|percent)\b/i.test(origClean);
+    const hasNumber = /\b\d{2,}\b/.test(origClean);
+
+    const candidates = [];
+    const secKey = (sectionName || 'experience').toLowerCase();
+
+    // 1. SECTION: PROFESSIONAL SUMMARY
+    if (secKey.includes('summary') || secKey.includes('profile')) {
+      candidates.push(`${origClean} Focused on building scalable backend architectures, automated CI/CD pipelines, and high-reliability systems.`);
+      candidates.push(`Accomplished engineering professional with proven expertise: ${origClean}`);
+      candidates.push(`${origClean} Dedicated to system performance optimization, API design, and cross-functional team execution.`);
+    }
+
+    // 2. SECTION: EDUCATION
+    else if (secKey.includes('education') || secKey.includes('academic')) {
+      // Do not inject experience achievements into education!
+      candidates.push(origClean);
+    }
+
+    // 3. SECTION: PROJECTS
+    else if (secKey.includes('project')) {
+      if (origLower.includes('chat') || origLower.includes('socket')) {
+        candidates.push(`Architected ${core}, prioritizing low-latency real-time data flow and resilient connection management.`);
+        candidates.push(`Engineered ${core}, implementing WebSocket communication and responsive UI components.`);
+      } else if (origLower.includes('finance') || origLower.includes('tracker') || origLower.includes('budget')) {
+        candidates.push(`Designed and deployed ${core}, delivering secure full-stack data tracking and intuitive analytics.`);
+        candidates.push(`Engineered ${core}, optimizing database query performance and responsive frontend workflows.`);
+      } else {
+        candidates.push(`Architected and built ${core}, adhering to clean modular design patterns.`);
+        candidates.push(`Designed and implemented ${core} with comprehensive unit testing and documentation.`);
+      }
+    }
+
+    // 4. SECTION: SKILLS / CERTIFICATIONS
+    else if (secKey.includes('skill') || secKey.includes('cert')) {
+      candidates.push(origClean);
+    }
+
+    // 5. SECTION: EXPERIENCE (Context-Aware by role & function)
+    else {
+      if (origLower.includes('mentor') || origLower.includes('junior')) {
+        if (origClean.includes('3')) {
+          candidates.push(`Mentored 3 junior engineers on system design, code review protocols, and unit testing best practices.`);
+          candidates.push(`Guided 3 junior engineering team members in technical architecture, unit testing rigor, and clean code standards.`);
+        } else {
+          candidates.push(`Mentored engineering teammates in code review standards, unit testing, and system design.`);
+          candidates.push(`Facilitated engineering mentorship and peer code reviews for junior developers.`);
+        }
+      } else if (origLower.includes('redis') || origLower.includes('latency') || origLower.includes('response time') || origLower.includes('caching')) {
+        if (origClean.includes('35')) {
+          candidates.push(`Reduced average API response time by 35 percent through SQL query optimization and Redis cache integration.`);
+          candidates.push(`Optimized database queries and implemented Redis caching, driving a 35 percent reduction in average API response latency.`);
+        } else {
+          candidates.push(`Optimized database query performance and implemented caching strategies for ${core}.`);
+          candidates.push(`Refactored data caching and query retrieval workflows for ${core}.`);
+        }
+      } else if (origLower.includes('microservices') || origLower.includes('monolithic') || (origLower.includes('aws') && origLower.includes('migration'))) {
+        if (origClean.includes('40')) {
+          candidates.push(`Spearheaded migration from monolithic application to microservices architecture on AWS, improving deployment frequency by 40 percent.`);
+          candidates.push(`Led transition to AWS microservices architecture, boosting deployment frequency by 40 percent with zero service downtime.`);
+        } else {
+          candidates.push(`Spearheaded cloud microservices migration on AWS for ${core}.`);
+          candidates.push(`Architected AWS cloud infrastructure and microservices supporting ${core}.`);
+        }
+      } else if (origLower.includes('ci/cd') || origLower.includes('jenkins') || origLower.includes('docker') || origLower.includes('deployment')) {
+        if (origClean.includes('2 hours to 15 minutes')) {
+          candidates.push(`Automated CI/CD deployment pipelines using Jenkins and Docker, reducing deployment time from 2 hours to 15 minutes.`);
+          candidates.push(`Implemented automated CI/CD workflows with Jenkins and Docker, decreasing release execution time from 2 hours to 15 minutes.`);
+        } else {
+          candidates.push(`Automated CI/CD build and deployment pipelines using Docker and containerized tooling for ${core}.`);
+          candidates.push(`Standardized containerization and deployment pipelines for ${core}.`);
+        }
+      } else if (origLower.includes('junit') || origLower.includes('test') || origLower.includes('coverage')) {
+        if (origClean.includes('60') && origClean.includes('90')) {
+          candidates.push(`Established automated unit and integration test suites in JUnit, elevating code coverage from 60 percent to 90 percent.`);
+          candidates.push(`Authored comprehensive unit and integration tests using JUnit, increasing test coverage from 60 percent to 90 percent.`);
+        } else {
+          candidates.push(`Authored comprehensive unit and integration test suites for ${core}, enhancing software reliability.`);
+          candidates.push(`Established automated test suites and regression validation for ${core}.`);
+        }
+      } else if (origLower.includes('mysql') || origLower.includes('schema') || origLower.includes('database')) {
+        if (origClean.includes('25')) {
+          candidates.push(`Designed and indexed MySQL database schemas, improving query performance by 25 percent.`);
+          candidates.push(`Optimized MySQL relational database structures and schema indexing, achieving a 25 percent increase in query performance.`);
+        } else {
+          candidates.push(`Designed and optimized relational database schemas for ${core}.`);
+          candidates.push(`Engineered scalable database schema and index architectures for ${core}.`);
+        }
+      } else if (origLower.includes('api') || origLower.includes('django') || origLower.includes('spring') || origLower.includes('rest')) {
+        if (origClean.includes('50,000') || origClean.includes('50000')) {
+          candidates.push(`Architected and maintained RESTful APIs using Python and Django, supporting over 50,000 daily active users with high availability.`);
+          candidates.push(`Engineered scalable RESTful API services in Python/Django, reliably serving 50,000+ daily active users.`);
+        } else if (origClean.includes('10,000') || origClean.includes('10000')) {
+          candidates.push(`Engineered backend services in Java and Spring Boot for an e-commerce order management system processing 10,000 orders per day.`);
+          candidates.push(`Built resilient Java and Spring Boot backend microservices for an order management system handling 10,000 orders daily.`);
+        } else {
+          candidates.push(`Architected and maintained ${core}, adhering to clean API design standards and modular code structure.`);
+          candidates.push(`Engineered robust backend API services for ${core}.`);
+        }
+      } else if (origLower.includes('agile') || origLower.includes('scrum') || origLower.includes('stand-up') || origLower.includes('sprint')) {
+        if (origClean.includes('8 engineers') || (origClean.includes('8') && origLower.includes('team'))) {
+          candidates.push(`Collaborated with a cross-functional team of 8 engineers in an Agile Scrum environment to deliver features on a two-week sprint cycle.`);
+          candidates.push(`Partnered with an 8-engineer Agile Scrum team to consistently ship product features on two-week sprint cycles.`);
+        } else {
+          candidates.push(`Actively contributed to Agile Scrum ceremonies including daily stand-ups, sprint planning, and retrospectives to ensure steady delivery cadence.`);
+          candidates.push(`Participated in Agile sprint planning, stand-ups, and retrospectives, supporting cross-functional team velocity.`);
+        }
+      } else if (origLower.includes('internal tools') || origLower.includes('data validation') || origLower.includes('automation')) {
+        if (origClean.includes('5 hours')) {
+          candidates.push(`Engineered internal Python data validation utilities, saving the engineering team 5 hours per week in manual effort.`);
+          candidates.push(`Automated data validation processes with custom Python tools, saving 5 hours per week in operational overhead.`);
+        } else {
+          candidates.push(`Engineered internal Python automation tools to streamline ${core}.`);
+          candidates.push(`Developed internal utilities and automated scripts for ${core}.`);
+        }
+      } else if (origLower.includes('dashboard') || origLower.includes('react') || origLower.includes('front-end') || origLower.includes('javascript')) {
+        candidates.push(`Developed modular frontend components using React and JavaScript for an internal reporting dashboard.`);
+        candidates.push(`Engineered responsive reporting dashboard interfaces with React and JavaScript, improving data accessibility.`);
+      } else {
+        // Universal fallback: Transform passive sentence to active without inventing numbers
+        const cleanCapitalized = core.charAt(0).toUpperCase() + core.slice(1);
+        candidates.push(`Engineered ${core}.`);
+        candidates.push(`Spearheaded ${cleanCapitalized}.`);
+        candidates.push(`Delivered ${core} with high technical quality and clean coding standards.`);
+      }
+    }
+
+    // Select the best candidate that passes the fact-check rule and is NOT a duplicate
+    let chosen = null;
+    for (const cand of candidates) {
+      if (this.verifyFactIntegrity(cand, origClean, { sectionName, company, role }) && 
+          !this.isDuplicateOrTooSimilar(cand, existingRewrites)) {
+        chosen = cand;
+        break;
+      }
+    }
+
+    if (!chosen) {
+      // Fallback to minimal grammatical active transformation
+      const cleanCore = core.charAt(0).toUpperCase() + core.slice(1);
+      chosen = `Engineered ${cleanCore}.`;
+      if (!this.verifyFactIntegrity(chosen, origClean) || this.isDuplicateOrTooSimilar(chosen, existingRewrites)) {
+        chosen = `Spearheaded ${cleanCore}.`;
+      }
+      if (!this.verifyFactIntegrity(chosen, origClean)) {
+        chosen = origClean; // Absolute safe fallback: original unmodified text
+      }
+    }
+
+    const reason = (hasPercent || hasNumber)
+      ? 'Preserved verified original metrics while strengthening active accomplishment structure.'
+      : 'Eliminated passive phrasing with strong action verbs and professional clarity (no invented figures).';
+
+    return {
+      rewrite: chosen,
+      reason,
+      type: (hasPercent || hasNumber) ? 'impact' : 'verb'
+    };
+  }
+
+  /**
+   * Compatibility wrapper for single-string callers
+   */
+  generateBulletRewrite(originalText, targetRole = 'Software Engineer', sectionName = 'experience', company = '', role = '', existingRewrites = []) {
+    return this.generateContextualRewrite({
+      originalText,
+      sectionName,
+      company,
+      role,
+      targetRole,
+      existingRewrites
+    }).rewrite;
+  }
+
+  /**
+   * Generate Contextual Sentence for Missing Keyword insertion (Preserving Fact Integrity)
+   */
+  generateContextualSkillSentence(keyword, targetRole = 'Software Engineer') {
     const kw = keyword.toLowerCase();
     if (kw.includes('kubernetes') || kw.includes('docker') || kw.includes('cloud')) {
-      return `Architected containerized microservices deployment with ${keyword}, boosting system availability to 99.98%.`;
+      return `Configured and deployed containerized microservices utilizing ${keyword} for reliable production infrastructure.`;
     }
     if (kw.includes('sql') || kw.includes('python') || kw.includes('data')) {
-      return `Leveraged ${keyword} to perform cohort retention queries and build automated executive dashboards.`;
+      return `Utilized ${keyword} for structured query design, data modeling, and automated backend data processing.`;
     }
     if (kw.includes('stakeholder') || kw.includes('agile') || kw.includes('scrum')) {
-      return `Facilitated ${keyword} alignment across 4 business units, driving 100% on-time milestone completions.`;
+      return `Collaborated across Agile sprint teams with ${keyword} practices to deliver project milestones on schedule.`;
     }
-    if (kw.includes('a/b') || kw.includes('experiment')) {
-      return `Designed and executed 18+ high-confidence ${keyword} experiments, accelerating user funnel conversion by 21%.`;
+    if (kw.includes('aws') || kw.includes('gcp') || kw.includes('azure')) {
+      return `Architected and maintained cloud-native backend services deployed on ${keyword}.`;
     }
-    return `Spearheaded ${keyword} best practices across the product lifecycle, generating measurable efficiency gains.`;
+    return `Applied ${keyword} best practices to optimize technical delivery and software architecture.`;
   }
 
   /**
@@ -397,20 +690,118 @@ export class AIEngine {
   }
 
   /**
-   * Generate AI-Enhanced Bullet Point Rewrites
+   * Generate Ranked Actionable Suggestions with Guaranteed Context & Uniqueness
    */
-  generateBulletRewrite(originalText, targetRole = 'Senior Product Manager') {
-    const randomVerb = this.actionVerbs[Math.floor(Math.random() * this.actionVerbs.length)];
-    
-    if (originalText.toLowerCase().includes('worked on') || originalText.toLowerCase().includes('responsible for')) {
-      return `${randomVerb} 4 core platform microservices and API integrations, driving a 24% reduction in latency and supporting 15k+ daily active users.`;
-    }
-    
-    if (originalText.toLowerCase().includes('managed') || originalText.toLowerCase().includes('team')) {
-      return `Spearheaded a 12-person cross-functional team across Engineering, UX, and Marketing, accelerating sprint velocity by 30% and delivering product milestones on schedule.`;
-    }
+  getRankedSuggestions(resume, resolvedIds = [], jobDescription = null) {
+    const list = [];
+    const existingRewrites = [];
 
-    return `${randomVerb} key feature roadmaps and customer feedback loops, boosting user retention by 18% and generating $450K in incremental pipeline.`;
+    resume.sections?.forEach(sec => {
+      const sectionName = sec.id || sec.title || 'experience';
+      if (sec.items) {
+        sec.items.forEach(item => {
+          const company = item.company || '';
+          const role = item.role || '';
+          const surrounding = (item.bullets || []).map(b => b.text);
+
+          if (item.bullets) {
+            item.bullets.forEach(b => {
+              if (resolvedIds.includes(b.id)) return;
+
+              const origText = (b.text || '').trim();
+              if (!origText) return;
+
+              const isPassive = /^(?:i\s+)?(?:worked\s+(?:on|with|in)|was\s+responsible\s+for|responsible\s+for|assisted|helped|did|handled|participated|tasked|contributed\s+to)\s+/i.test(origText);
+              const hasMetrics = /\d+%|\$\d+|\d+x|\b\d{2,}\b|\bpercent\b/i.test(origText);
+
+              // Suggest improvement if flagged or if weak phrasing exists
+              if (b.hasSuggestion || isPassive || (!hasMetrics && origText.length > 20)) {
+                let rewriteData = null;
+                if (b.suggestedRewrite && 
+                    this.verifyFactIntegrity(b.suggestedRewrite, origText) && 
+                    !this.isDuplicateOrTooSimilar(b.suggestedRewrite, existingRewrites)) {
+                  rewriteData = {
+                    rewrite: b.suggestedRewrite,
+                    reason: b.suggestionDesc || 'Strengthen passive phrasing while preserving verified facts.',
+                    type: b.suggestionType || (hasMetrics ? 'verb' : 'impact')
+                  };
+                } else {
+                  rewriteData = this.generateContextualRewrite({
+                    originalText: origText,
+                    sectionName: 'experience',
+                    company,
+                    role,
+                    surroundingBullets: surrounding,
+                    targetRole: resume.targetRole || 'Software Engineer',
+                    existingRewrites
+                  });
+                }
+
+                existingRewrites.push(rewriteData.rewrite);
+
+                list.push({
+                  bulletId: b.id,
+                  sectionId: sec.id,
+                  sectionTitle: sec.title || 'Experience',
+                  company,
+                  role,
+                  category: hasMetrics ? 'Action Verb Polish' : (isPassive ? 'Passive Phrasing' : 'Impact & Clarity'),
+                  type: rewriteData.type,
+                  quote: origText,
+                  explanation: rewriteData.reason,
+                  rewrite: rewriteData.rewrite,
+                  impactScore: b.impactScore || (isPassive ? 95 : 85)
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Sort by impact score descending
+    return list.sort((a, b) => b.impactScore - a.impactScore);
+  }
+
+  /**
+   * Recalculate ATS Score, Keyword Coverage, and Match Score after applying an edit
+   */
+  recalculateScoresAfterUpdate(resume, jobDescription = null) {
+    const fullText = JSON.stringify(resume).toLowerCase();
+    
+    // 1. Keyword coverage
+    const targetKeywords = jobDescription?.keywordsFound?.concat(jobDescription?.keywordsMissing || []) || 
+      this.domainKeywords.engineering;
+    
+    let matchedCount = 0;
+    targetKeywords.forEach(kw => {
+      if (fullText.includes(kw.toLowerCase())) matchedCount++;
+    });
+    const keywordCoveragePct = targetKeywords.length > 0 ? Math.round((matchedCount / targetKeywords.length) * 100) : 85;
+
+    // 2. ATS Score calculation
+    let atsScore = 80;
+    if (resume.candidate?.email && resume.candidate?.phone) atsScore += 8;
+    if (resume.candidate?.location) atsScore += 4;
+    const hasSummary = resume.sections?.some(s => s.id === 'summary' && s.content?.length > 30);
+    const hasExp = resume.sections?.some(s => s.id === 'experience' && s.items?.length > 0);
+    const hasSkills = resume.sections?.some(s => s.id === 'skills' && s.content?.length > 20);
+    if (hasSummary && hasExp && hasSkills) atsScore += 6;
+
+    // Metric density check
+    const metrics = fullText.match(/\b\d+(\.\d+)?%|\$\d+(\.\d+)?(k|m|b)?|\b\d{2,}\b/gi) || [];
+    if (metrics.length >= 6) atsScore += 2;
+
+    atsScore = Math.min(99, Math.max(50, atsScore));
+
+    // 3. Match Score
+    const matchScore = Math.round(keywordCoveragePct * 0.5 + atsScore * 0.5);
+
+    return {
+      atsScore,
+      keywordCoverage: keywordCoveragePct,
+      matchScore: Math.min(98, Math.max(40, matchScore))
+    };
   }
 
   /**

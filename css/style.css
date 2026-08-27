@@ -2361,14 +2361,14 @@ body {
   color: #EF4444;
 }
 
-/* Actionable Suggestions & Buttons */
+/* Actionable Suggestions & Clean Diff Layout */
 .suggestion-card {
   position: relative;
   background: white;
   border: 1.5px solid var(--border-light);
   border-radius: var(--radius-md);
   padding: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   transition: all 0.2s ease;
 }
 
@@ -2383,14 +2383,91 @@ body {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
 
+.suggestion-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.suggestion-meta-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.suggestion-diff-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.suggestion-diff-row {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.diff-original-box {
+  background: #F8FAFC;
+  border-left: 3px solid #CBD5E1;
+  color: #475569;
+}
+
+.diff-suggested-box {
+  background: #F0FDF4;
+  border-left: 3px solid #10B981;
+  color: #065F46;
+}
+
+.diff-prefix-tag {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748B;
+  margin-bottom: 3px;
+}
+
+.diff-prefix-tag.ai-tag {
+  color: #059669;
+}
+
+.diff-text-body {
+  margin: 0;
+  font-style: normal;
+}
+
+.diff-text-body.ai-body {
+  font-weight: 600;
+  color: #047857;
+}
+
+.suggestion-explanation-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: #64748B;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  line-height: 1.35;
+}
+
 .btn-dismiss-suggestion {
   background: transparent;
   border: none;
   color: #94A3B8;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 2px 6px;
   border-radius: 4px;
 }
 
@@ -2399,36 +2476,29 @@ body {
   background: #FEF2F2;
 }
 
-.suggestion-quote {
-  font-size: 0.78rem;
-  font-style: italic;
-  color: #475569;
-  background: #F8FAFC;
-  padding: 6px 8px;
-  border-radius: 4px;
-  margin: 8px 0;
-  border-left: 3px solid #CBD5E1;
-}
-
 .suggestion-actions-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   margin-top: 10px;
 }
 
 /* Primary Button: Filled Indigo */
 .btn-apply-rewrite {
-  flex: 1.3;
+  flex: 1.1;
   background: var(--primary);
   color: white;
   border: none;
-  padding: 7px 12px;
+  padding: 7px 10px;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .btn-apply-rewrite:hover {
@@ -2436,15 +2506,36 @@ body {
   transform: translateY(-1px);
 }
 
-/* Secondary Button: Outline Style */
+/* Secondary Button: Reject */
+.btn-reject-suggestion {
+  flex: 0.8;
+  background: white;
+  color: #64748B;
+  border: 1px solid #CBD5E1;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.btn-reject-suggestion:hover {
+  background: #FEF2F2;
+  color: #DC2626;
+  border-color: #FCA5A5;
+}
+
+/* Tertiary Button: Outline Style */
 .btn-highlight-target {
-  flex: 1;
+  flex: 0.9;
   background: transparent;
   color: var(--primary);
   border: 1.5px solid var(--primary);
-  padding: 6px 10px;
+  padding: 6px 8px;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

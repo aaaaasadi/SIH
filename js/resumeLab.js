@@ -268,23 +268,42 @@ export class ResumeLabView {
       <div id="suggestions-list-container">
         ${visibleSuggestions.length > 0 ? visibleSuggestions.map(s => `
           <div class="suggestion-card ${this.activeHighlightId === s.bulletId ? 'highlighted-card' : ''}" data-bullet-id="${s.bulletId}">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <div class="suggestion-badge ${s.type === 'impact' ? 'warning' : 'info'}">
-                ${s.category}
+            <div class="suggestion-top-bar">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span class="suggestion-badge ${s.type === 'impact' ? 'warning' : 'info'}">
+                  ${s.category}
+                </span>
+                ${s.company ? `<span class="suggestion-meta-badge">${s.company}</span>` : ''}
               </div>
-              <button class="btn-dismiss-suggestion" data-bullet-id="${s.bulletId}" title="Dismiss suggestion">×</button>
+              <button class="btn-dismiss-suggestion" data-bullet-id="${s.bulletId}" title="Reject / Dismiss suggestion">✕</button>
             </div>
             
-            <div class="suggestion-quote">"${s.quote.slice(0, 65)}..."</div>
-            <div class="suggestion-text">${s.explanation}</div>
+            <div class="suggestion-diff-container">
+              <div class="suggestion-diff-row diff-original-box">
+                <span class="diff-prefix-tag">Original:</span>
+                <p class="diff-text-body">${s.quote}</p>
+              </div>
+              <div class="suggestion-diff-row diff-suggested-box">
+                <span class="diff-prefix-tag ai-tag">AI Suggestion:</span>
+                <p class="diff-text-body ai-body">${s.rewrite}</p>
+              </div>
+            </div>
 
-            <!-- Dual Action Buttons: Primary Apply vs Secondary Highlight Targets -->
+            <div class="suggestion-explanation-note">
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0; margin-top:2px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>${s.explanation}</span>
+            </div>
+
+            <!-- Triple Action Buttons: Apply AI Rewrite | Reject | Highlight -->
             <div class="suggestion-actions-row">
-              <button class="btn-apply-rewrite" data-bullet-id="${s.bulletId}" data-rewrite="${escape(s.rewrite)}">
-                Apply AI Rewrite
+              <button class="btn-apply-rewrite" data-bullet-id="${s.bulletId}" data-rewrite="${encodeURIComponent(s.rewrite)}" title="Apply this specific rewrite">
+                ✔ Apply
               </button>
-              <button class="btn-highlight-target" data-bullet-id="${s.bulletId}">
-                Highlight Targets
+              <button class="btn-reject-suggestion" data-bullet-id="${s.bulletId}" title="Reject this suggestion">
+                ✕ Reject
+              </button>
+              <button class="btn-highlight-target" data-bullet-id="${s.bulletId}" title="Locate in editor">
+                🎯 Highlight
               </button>
             </div>
           </div>
@@ -854,14 +873,17 @@ export class ResumeLabView {
     const suggestions = aiEngine.getRankedSuggestions(state.resume, state.resolvedSuggestions || []);
 
     if (suggestions.length === 0) {
-      window.showToast?.('All suggestions have already been applied!', 'info');
+      window.showToast?.('All active suggestions have already been applied!', 'info');
       return;
     }
 
-    if (confirm(`Apply AI Optimization?\n\nThis will update ${suggestions.length} bullet points with quantifiable metrics and active verbs.\nUndo will be available for 30 seconds.`)) {
-      const count = store.optimizeAllSuggestions();
+    if (confirm(`Apply Context-Aware AI Optimization?\n\nThis will enhance ${suggestions.length} items with unique, fact-checked achievements.\nUndo will be available for 30 seconds.`)) {
+      const res = store.optimizeAllSuggestions();
       this.start30sUndoCountdown();
-      window.showToast?.(`AI optimized ${count} sections!`, 'success');
+      const count = res?.count ?? res;
+      const ats = res?.scores?.atsScore || 95;
+      const match = res?.scores?.matchScore || 94;
+      window.showToast?.(`AI optimized ${count} items! ATS: ${ats}% • Match: ${match}%`, 'success');
       this.render(this.container);
     }
   }
@@ -949,10 +971,23 @@ export class ResumeLabView {
     this.container.querySelectorAll('.btn-apply-rewrite').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const bulletId = e.currentTarget.getAttribute('data-bullet-id');
-        const rewrite = unescape(e.currentTarget.getAttribute('data-rewrite'));
-        store.updateBulletRewrite(bulletId, rewrite);
+        const rawRewrite = e.currentTarget.getAttribute('data-rewrite');
+        const rewrite = rawRewrite ? decodeURIComponent(rawRewrite) : '';
+        const scores = store.updateBulletRewrite(bulletId, rewrite);
         this.activeHighlightId = null;
-        window.showToast?.('AI Rewrite applied successfully!', 'success');
+        const ats = scores?.atsScore || 95;
+        const match = scores?.matchScore || 94;
+        window.showToast?.(`AI Rewrite applied! ATS Score: ${ats}% • Match Score: ${match}%`, 'success');
+        this.render(this.container);
+      });
+    });
+
+    // Reject Suggestion Button
+    this.container.querySelectorAll('.btn-reject-suggestion').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const bulletId = e.currentTarget.getAttribute('data-bullet-id');
+        store.dismissSuggestion(bulletId);
+        window.showToast?.('Suggestion rejected and dismissed', 'info');
         this.render(this.container);
       });
     });

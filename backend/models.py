@@ -228,3 +228,21 @@ class InterviewSessionHistoryItem(BaseModel):
     problem_solving_score: int
     confidence_score: int
     report_json: Optional[str] = None
+
+class OptimizeBulletRequest(BaseModel):
+    original_text: str
+    section_name: Optional[str] = "experience"
+    company: Optional[str] = ""
+    role: Optional[str] = ""
+    surrounding_bullets: Optional[List[str]] = Field(default_factory=list)
+    target_role: Optional[str] = "Software Engineer"
+    existing_rewrites: Optional[List[str]] = Field(default_factory=list)
+
+class OptimizeBulletResponse(BaseModel):
+    success: bool = True
+    original_text: str
+    rewritten_text: str
+    reason: str
+    type: str
+    passed_fact_check: bool = True
+    is_unique: bool = True

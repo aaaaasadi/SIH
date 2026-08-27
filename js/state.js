@@ -4,6 +4,8 @@
  * Session Handoff & Migration, Generic vs Personalized Mock Question Banks.
  */
 
+import { aiEngine } from './aiEngine.js';
+
 const STORAGE_KEY = 'career_ai_state_v2';
 const GUEST_STORAGE_KEY = 'career_ai_guest_session_v2';
 
@@ -253,11 +255,11 @@ export const BLANK_RESUME_TEMPLATE = {
               id: 'b-blank-2',
               text: 'Collaborated with cross-functional stakeholders to deliver project milestones on schedule.',
               hasSuggestion: true,
-              suggestionType: 'impact',
-              suggestionTitle: 'Quantify Impact',
+              suggestionType: 'verb',
+              suggestionTitle: 'Stronger Verbs',
               impactScore: 90,
-              suggestionDesc: 'Add specific outcome metrics or percentage gains.',
-              suggestedRewrite: 'Orchestrated cross-functional delivery of 3 critical milestones, increasing project delivery velocity by 25%.'
+              suggestionDesc: 'Replace passive phrasing with active leadership and cross-functional ownership.',
+              suggestedRewrite: 'Orchestrated cross-functional stakeholder collaboration to consistently deliver core project milestones on schedule.'
             }
           ]
         }
@@ -318,17 +320,17 @@ export const SAMPLE_RESUMES = {
                 suggestionTitle: 'Stronger Verbs',
                 impactScore: 90,
                 suggestionDesc: 'Replace passive "Helped build" with active accomplishment language.',
-                suggestedRewrite: 'Engineered 14 RESTful endpoints in Node.js/Express, accelerating reporting data load time by 35%.'
+                suggestedRewrite: 'Engineered scalable RESTful API endpoints in Node.js and Express to streamline data delivery for the analytics dashboard.'
               },
               {
                 id: 'b-a2',
                 text: 'Wrote unit and integration tests using Jest and Cypress.',
                 hasSuggestion: true,
-                suggestionType: 'impact',
-                suggestionTitle: 'Quantify Impact',
+                suggestionType: 'verb',
+                suggestionTitle: 'Active Delivery',
                 impactScore: 85,
-                suggestionDesc: 'Quantify the test coverage improvement and CI stability.',
-                suggestedRewrite: 'Authored 80+ comprehensive unit and end-to-end tests, expanding test coverage from 52% to 91%.'
+                suggestionDesc: 'Emphasize testing rigor and CI/CD quality assurance.',
+                suggestedRewrite: 'Authored comprehensive unit and integration test suites using Jest and Cypress to ensure high code quality and prevent regressions.'
               }
             ]
           }
@@ -992,7 +994,9 @@ class StateStore {
 
   updateBulletRewrite(bulletId, newText) {
     this.pushUndoSnapshot('Apply AI Rewrite');
-    this.state.resume.sections.forEach(sec => {
+    let updated = false;
+
+    this.state.resume.sections?.forEach(sec => {
       if (sec.items) {
         sec.items.forEach(item => {
           if (item.bullets) {
@@ -1000,10 +1004,14 @@ class StateStore {
               if (b.id === bulletId) {
                 b.text = newText;
                 b.hasSuggestion = false;
+                updated = true;
               }
             });
           }
         });
+      } else if (sec.id === bulletId || (bulletId === 'sec-summary' && sec.id === 'summary')) {
+        sec.content = newText;
+        updated = true;
       }
     });
 
@@ -1011,8 +1019,18 @@ class StateStore {
       this.state.resolvedSuggestions.push(bulletId);
     }
 
-    this.state.resume.matchScore = Math.min(96, (this.state.resume.matchScore || 75) + 4);
+    // Dynamic Recalculation of Scores: ATS Score, Keyword Coverage, Role Match Score
+    const jd = this.state.jobDescriptions[this.state.currentJdKey];
+    const scores = aiEngine.recalculateScoresAfterUpdate(this.state.resume, jd);
+    this.state.resume.matchScore = scores.matchScore;
+    if (this.state.dashboardScores) {
+      this.state.dashboardScores.ats_score = scores.atsScore;
+      this.state.dashboardScores.keyword_alignment = scores.keywordCoverage;
+      this.state.dashboardScores.resume_score = scores.matchScore;
+    }
+
     this.saveState();
+    return scores;
   }
 
   dismissSuggestion(bulletId) {
@@ -1025,18 +1043,40 @@ class StateStore {
   optimizeAllSuggestions() {
     this.pushUndoSnapshot('Bulk AI Optimization');
     let count = 0;
-    this.state.resume.sections.forEach(sec => {
+    const existingRewrites = [];
+    const targetRole = this.state.resume.targetRole || 'Software Engineer';
+
+    this.state.resume.sections?.forEach(sec => {
+      const sectionName = sec.id || 'experience';
       if (sec.items) {
         sec.items.forEach(item => {
+          const company = item.company || '';
+          const role = item.role || '';
+          const surrounding = (item.bullets || []).map(b => b.text);
+
           if (item.bullets) {
             item.bullets.forEach(b => {
-              if (b.hasSuggestion && b.suggestedRewrite) {
-                b.text = b.suggestedRewrite;
-                b.hasSuggestion = false;
-                if (!this.state.resolvedSuggestions.includes(b.id)) {
-                  this.state.resolvedSuggestions.push(b.id);
+              if (!this.state.resolvedSuggestions.includes(b.id)) {
+                // Generate a unique, fact-checked, context-aware rewrite
+                const rewriteData = aiEngine.generateContextualRewrite({
+                  originalText: b.text,
+                  sectionName: 'experience',
+                  company,
+                  role,
+                  surroundingBullets: surrounding,
+                  targetRole,
+                  existingRewrites
+                });
+
+                if (rewriteData && rewriteData.rewrite && rewriteData.rewrite !== b.text) {
+                  b.text = rewriteData.rewrite;
+                  b.hasSuggestion = false;
+                  existingRewrites.push(rewriteData.rewrite);
+                  if (!this.state.resolvedSuggestions.includes(b.id)) {
+                    this.state.resolvedSuggestions.push(b.id);
+                  }
+                  count++;
                 }
-                count++;
               }
             });
           }
@@ -1044,9 +1084,18 @@ class StateStore {
       }
     });
 
-    this.state.resume.matchScore = Math.min(98, (this.state.resume.matchScore || 75) + 12);
+    // Dynamic Recalculation of Scores: ATS Score, Keyword Coverage, Role Match Score
+    const jd = this.state.jobDescriptions[this.state.currentJdKey];
+    const scores = aiEngine.recalculateScoresAfterUpdate(this.state.resume, jd);
+    this.state.resume.matchScore = scores.matchScore;
+    if (this.state.dashboardScores) {
+      this.state.dashboardScores.ats_score = scores.atsScore;
+      this.state.dashboardScores.keyword_alignment = scores.keywordCoverage;
+      this.state.dashboardScores.resume_score = scores.matchScore;
+    }
+
     this.saveState();
-    return count;
+    return { count, scores };
   }
 
   addSkillToResume(skill, contextualSentence = '') {

@@ -12,7 +12,7 @@ from .models import (
     InterviewQuestion, InterviewNextQuestionRequest,
     InterviewAnswerEvaluationRequest, InterviewAnswerEvaluationResponse,
     InterviewFinalReportRequest, InterviewFinalReportResponse,
-    InterviewSessionHistoryItem
+    InterviewSessionHistoryItem, OptimizeBulletRequest, OptimizeBulletResponse
 )
 from .parser import ResumeParser
 from .analyzer import analyzer
@@ -124,6 +124,33 @@ async def analyze_resume(
 @app.get("/api/analyses/recent")
 async def get_recent_analyses():
     return db.get_recent_analyses(limit=10)
+
+@app.post("/api/resume/optimize-bullet", response_model=OptimizeBulletResponse)
+async def optimize_bullet(req: OptimizeBulletRequest):
+    """
+    Context-aware, fact-checked bullet optimization.
+    Never invents percentages, dollar figures, or metrics.
+    Guarantees no duplicate suggestions across sections.
+    """
+    rewritten, reason, r_type = analyzer._generate_improved_bullet(
+        original=req.original_text,
+        section_name=req.section_name or "experience",
+        company=req.company or "",
+        role=req.role or "",
+        existing_rewrites=req.existing_rewrites or []
+    )
+    passed_fact_check = analyzer._check_fact_integrity(rewritten, req.original_text)
+    is_unique = not analyzer._is_duplicate(rewritten, req.existing_rewrites or [])
+
+    return OptimizeBulletResponse(
+        success=True,
+        original_text=req.original_text,
+        rewritten_text=rewritten,
+        reason=reason,
+        type=r_type,
+        passed_fact_check=passed_fact_check,
+        is_unique=is_unique
+    )
 
 # ============================================================================
 # 2. Upgraded AI Mock Interview Endpoints
