@@ -370,6 +370,10 @@ class AppController {
     }
   }
 
+  renderCurrentView() {
+    this.navigateTo(this.currentView || 'dashboard');
+  }
+
   renderSidebarProfile() {
     const nameEl = document.getElementById('sidebar-user-name');
     const planEl = document.getElementById('sidebar-user-plan');

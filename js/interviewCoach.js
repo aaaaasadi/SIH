@@ -1155,7 +1155,6 @@ export class InterviewCoachView {
       evaluation_mode: "rubric_fallback"
     };
   }
-  }
 
   async handleProceedNextQuestion() {
     const nextIdx = this.session.currentQuestionIndex + 1;
