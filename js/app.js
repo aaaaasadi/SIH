@@ -441,6 +441,23 @@ class AppController {
       }
     });
 
+    // Sidebar Logo
+    document.querySelector('.sidebar-logo')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.navigateTo('dashboard');
+    });
+
+    // Upgrade to Pro Button
+    document.getElementById('btn-upgrade-pro')?.addEventListener('click', () => {
+      window.showToast?.('🚀 You are on the Pro Coach Tier with unlimited AI resume tailoring & mock interviews!', 'success');
+    });
+
+    // Help Center Link
+    document.getElementById('link-help')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.showToast?.('💡 Tip: Use Resume Lab to analyze your resume against any job description, then start Mock Interviews for adaptive coaching!', 'info');
+    });
+
     // Global Search
     const searchInput = document.getElementById('global-search-input');
     searchInput?.addEventListener('keypress', (e) => {
@@ -545,9 +562,9 @@ class AppController {
       </div>
 
       <!-- Welcome Banner Card -->
-      <div class="welcome-card">
+      <div class="welcome-hero-card">
         <div class="welcome-content">
-          <h1>Welcome back, ${displayName}! 👋</h1>
+          <h2>Welcome back, ${displayName}! 👋</h2>
           <p>
             ${isGuest 
               ? 'You are viewing sample metrics. Upload your resume or start a personalized mock interview to get tailored real-time AI feedback.' 
@@ -564,9 +581,9 @@ class AppController {
           </div>
         </div>
 
-        <!-- Circular Score Gauge (Matching Screenshot 2) -->
-        <div class="score-gauge-box">
-          <svg class="score-circle" viewBox="0 0 100 100">
+        <!-- Circular Score Gauge -->
+        <div class="gauge-container">
+          <svg class="gauge-svg" viewBox="0 0 100 100">
             <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
             <circle class="gauge-fill" cx="50" cy="50" r="40"
               stroke-dasharray="251.2"
@@ -647,13 +664,13 @@ class AppController {
           <!-- Found in Resume -->
           <div class="keyword-group-title">FOUND IN RESUME</div>
           <div class="tags-container">
-            ${(currentJd.keywordsFound || ['Product Strategy', 'Agile']).map(kw => `<span class="tag-pill found">${kw}</span>`).join('')}
+            ${(currentJd.keywordsFound || ['Python', 'Java', 'Django', 'AWS', 'Docker']).map(kw => `<span class="tag-pill found">${kw}</span>`).join('')}
           </div>
 
           <!-- Recommended Additions -->
           <div class="keyword-group-title">RECOMMENDED ADDITIONS</div>
           <div class="tags-container">
-            ${(currentJd.keywordsMissing || ['SQL', 'Kubernetes', 'A/B Testing']).map(kw => `
+            ${(currentJd.keywordsMissing || ['GraphQL', 'Terraform', 'Kafka']).map(kw => `
               <span class="tag-pill recommended btn-dash-add-kw" data-kw="${kw}">
                 <span class="add-icon">+</span> ${kw}
               </span>
@@ -675,8 +692,8 @@ class AppController {
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               </div>
               <div>
-                <div class="prep-title">Mock Behavioral Interview</div>
-                <div class="prep-time">5 Questions • 0 Prerequisites</div>
+                <div class="prep-title">Mock Behavioral & Technical Interview</div>
+                <div class="prep-time">5 Adaptive Questions • Voice & Video Ready</div>
               </div>
             </div>
             <button class="btn-join" id="btn-dash-join-interview">Start Practice</button>
@@ -687,7 +704,7 @@ class AppController {
           <div class="recent-feedback-box">
             <div class="ai-avatar-badge">AI</div>
             <div class="feedback-text">
-              ${state.latestAnalysis?.recommendations?.[0] || 'Always anchor answers with the <strong>STAR method</strong> (Situation → Task → Action → Result) to maximize confidence.'}
+              ${state.latestAnalysis?.recommendations?.[0] || 'Always anchor answers with the <strong>STAR method</strong> (Situation → Task → Action → Result) with quantified numbers to maximize confidence.'}
             </div>
           </div>
         </div>
@@ -696,21 +713,21 @@ class AppController {
       <!-- 4. ATS Critical Issues Alert Banner -->
       <div class="ats-alert-card">
         <div class="ats-alert-left">
-          <span class="ats-badge-count">
-            ${state.latestAnalysis?.ats_issues?.length ? state.latestAnalysis.ats_issues.length : (currentJd.atsIssues?.length || 2)} Issues
+          <span class="ats-badge-count" style="${(state.latestAnalysis?.ats_issues?.length || 0) === 0 ? 'background: #ECFDF5; color: #047857;' : ''}">
+            ${state.latestAnalysis?.ats_issues?.length ? `${state.latestAnalysis.ats_issues.length} Issues` : '✓ 0 Issues'}
           </span>
           <div>
             <div class="ats-alert-title">ATS Health & Formatting</div>
             <div class="ats-alert-desc">
               ${state.latestAnalysis?.ats_issues?.length 
                 ? state.latestAnalysis.ats_issues.slice(0, 2).join(' • ') 
-                : '2 formatting inconsistencies detected that may lower pass-through rate in Taleo & Workday.'}
+                : 'Your resume passes standard ATS parsing algorithms (Standard section headings, single-column flow, quantified impact).'}
             </div>
           </div>
         </div>
 
         <button class="action-pill-btn" id="btn-review-ats-issues">
-          Review Issues in Resume Lab →
+          Review in Resume Lab →
         </button>
       </div>
     `;

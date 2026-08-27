@@ -454,20 +454,21 @@ body {
 /* ========================================================
    VIEW 1: OVERVIEW / DASHBOARD (Screenshot 2)
    ======================================================== */
-.welcome-hero-card {
+.welcome-hero-card, .welcome-card {
   background: #FFFFFF;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
-  padding: 32px 36px;
+  padding: 28px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
   box-shadow: var(--shadow-card);
+  gap: 24px;
 }
 
-.welcome-content h2 {
-  font-size: 1.65rem;
+.welcome-content h1, .welcome-content h2 {
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--text-main);
   margin-bottom: 8px;
@@ -475,9 +476,17 @@ body {
 
 .welcome-content p {
   color: var(--text-muted);
-  font-size: 0.95rem;
-  max-width: 580px;
-  margin-bottom: 20px;
+  font-size: 0.92rem;
+  max-width: 620px;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.welcome-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -502,19 +511,23 @@ body {
 }
 
 /* Circular Strength Gauge Widget */
-.gauge-container {
+.gauge-container, .score-gauge-box {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   width: 120px;
   height: 120px;
+  min-width: 120px;
+  min-height: 120px;
+  flex-shrink: 0;
 }
 
-.gauge-svg {
+.gauge-svg, .score-circle {
   transform: rotate(-90deg);
   width: 120px;
   height: 120px;
+  display: block;
 }
 
 .gauge-bg {
@@ -1984,8 +1997,31 @@ body {
   .metric-trio, .kanban-board {
     grid-template-columns: 1fr;
   }
+  .welcome-hero-card, .welcome-card {
+    flex-direction: column-reverse;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .welcome-actions {
+    justify-content: center;
+  }
+  .ats-alert-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .ats-alert-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
   .top-header {
     padding: 0 16px;
+  }
+  .header-nav-tabs {
+    display: none;
   }
   .content-body {
     padding: 16px;
