@@ -63,18 +63,19 @@ export const PERSONAS = {
     atsScore: 90,
     keywordAlignment: 80
   },
-  alex: {
-    id: 'alex',
-    name: 'Priya Sharma',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    role: 'Software Engineer',
-    plan: 'Premium Coach',
-    bio: 'Software Engineer with 5 years of experience in backend development, cloud infrastructure, and API design.',
-    targetCompany: 'Infosys / Tier-1 Tech',
-    experienceYears: 5,
-    interviewReadiness: 90,
-    atsScore: 94,
-    keywordAlignment: 92
+  vikram: {
+    id: 'vikram',
+    name: 'Vikram Nair',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    role: 'Career Switcher',
+    title: 'Product Analyst (from Data Engineering)',
+    plan: 'Free Tier',
+    bio: '3 years of experience in data engineering, transitioning into a product analyst role. Needs help reframing technical experience for product-focused positions.',
+    targetCompany: 'FinTech / E-commerce Product Teams',
+    experienceYears: 3,
+    interviewReadiness: 70,
+    atsScore: 78,
+    keywordAlignment: 74
   }
 };
 
@@ -281,12 +282,11 @@ export const BLANK_RESUME_TEMPLATE = {
 // Sample Resumes Directory (FR-1.11)
 export const SAMPLE_RESUMES = {
   priya: DEFAULT_RESUME,
-  alex: DEFAULT_RESUME,
   aarav: {
     id: 'res-aarav-01',
-    title: 'Junior Software Engineer — Aarav',
+    title: 'Junior Software Engineer — Aarav Sharma',
     targetRole: 'Software Engineer',
-    matchScore: 68,
+    matchScore: 72,
     lastSaved: 'Just now',
     candidate: {
       name: 'Aarav Sharma',
@@ -347,6 +347,220 @@ export const SAMPLE_RESUMES = {
         content: 'B.S. in Computer Science — San Jose State University (Expected May 2026, GPA: 3.82)'
       }
     ]
+  },
+  rohan: {
+    id: 'res-rohan-01',
+    title: 'Full Stack Engineer — Rohan Verma',
+    targetRole: 'Full Stack Engineer',
+    matchScore: 85,
+    lastSaved: 'Just now',
+    candidate: {
+      name: 'Rohan Verma',
+      email: 'rohan.verma@email.com',
+      phone: '(+91) 98765-88990',
+      location: 'Hyderabad, India',
+      linkedin: 'linkedin.com/in/rohanverma'
+    },
+    sections: [
+      {
+        id: 'summary',
+        title: 'Professional Summary',
+        content: 'Full Stack Engineer with 4 years of experience building high-throughput web applications with React, Node.js, TypeScript, and AWS cloud infrastructure. Experienced in rapid product iteration and microservices.'
+      },
+      {
+        id: 'experience',
+        title: 'Professional Experience',
+        items: [
+          {
+            id: 'exp-r1',
+            role: 'Full Stack Developer',
+            company: 'Apex Cloud Systems',
+            location: 'Hyderabad, India',
+            dates: 'March 2022 - Present',
+            bullets: [
+              {
+                id: 'b-r1',
+                text: 'Engineered responsive web application modules using React, TypeScript, and Node.js microservices.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-r2',
+                text: 'Optimized frontend query caching with Redis, reducing average page load latency by 28%.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-r3',
+                text: 'Helped implement CI/CD deployment pipelines using GitHub Actions and AWS ECS.',
+                hasSuggestion: true,
+                suggestionType: 'verb',
+                suggestionTitle: 'Active DevOps Ownership',
+                impactScore: 88,
+                suggestionDesc: 'Replace passive language with proactive release engineering.',
+                suggestedRewrite: 'Automated CI/CD container deployment pipelines using GitHub Actions and AWS ECS, streamlining production releases.'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'skills',
+        title: 'Skills & Technologies',
+        content: 'React, TypeScript, Node.js, Express, PostgreSQL, Redis, Docker, AWS, GraphQL, CI/CD, Next.js'
+      },
+      {
+        id: 'education',
+        title: 'Education',
+        content: 'B.Tech in Computer Science and Engineering — Jawaharlal Nehru Technological University (2022)'
+      }
+    ]
+  },
+  meera: {
+    id: 'res-meera-01',
+    title: 'Senior Systems Engineer — Meera Iyer',
+    targetRole: 'Systems Engineer',
+    matchScore: 90,
+    lastSaved: 'Just now',
+    candidate: {
+      name: 'Meera Iyer',
+      email: 'meera.iyer@email.com',
+      phone: '(+91) 98765-77665',
+      location: 'Chennai, India',
+      linkedin: 'linkedin.com/in/meeraiyer'
+    },
+    sections: [
+      {
+        id: 'summary',
+        title: 'Professional Summary',
+        content: 'Senior Systems Engineer with 5 years of experience in distributed infrastructure reliability, Linux kernel networking, and high-concurrency microservices. Dedicated to system observability and fault tolerance.'
+      },
+      {
+        id: 'experience',
+        title: 'Professional Experience',
+        items: [
+          {
+            id: 'exp-m1',
+            role: 'Senior Systems Engineer',
+            company: 'Nexus Infrastructure Tech',
+            location: 'Chennai, India',
+            dates: 'January 2021 - Present',
+            bullets: [
+              {
+                id: 'b-m1',
+                text: 'Maintained high availability for distributed microservices infrastructure across multi-region Kubernetes clusters.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-m2',
+                text: 'Automated telemetry and observability using Prometheus and Grafana dashboards.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-m3',
+                text: 'Refactored internal networking services in Go, reducing inter-service communication latency by 22%.',
+                hasSuggestion: false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'skills',
+        title: 'Skills & Technologies',
+        content: 'Go, Python, Kubernetes, Docker, Linux Internals, Distributed Systems, Prometheus, Grafana, gRPC, Terraform'
+      },
+      {
+        id: 'education',
+        title: 'Education',
+        content: 'B.E. in Computer Engineering — Anna University, Chennai (2021, First Class with Distinction)'
+      }
+    ]
+  },
+  vikram: {
+    id: 'res-vikram-01',
+    title: 'Product Analyst (from Data Engineering) — Vikram Nair',
+    targetRole: 'Product Analyst',
+    matchScore: 78,
+    lastSaved: 'Just now',
+    candidate: {
+      name: 'Vikram Nair',
+      email: 'vikram.nair@email.com',
+      phone: '(+91) 98765-11223',
+      location: 'Bengaluru, India',
+      linkedin: 'linkedin.com/in/vikramnair',
+      github: 'github.com/vikramnair'
+    },
+    sections: [
+      {
+        id: 'summary',
+        title: 'Professional Summary',
+        content: '3 years of experience in data engineering, transitioning into a product analyst role. Skilled at transforming raw telemetry and event pipelines into actionable product insights, conversion funnel optimizations, and user retention experiments.'
+      },
+      {
+        id: 'experience',
+        title: 'Professional Experience',
+        items: [
+          {
+            id: 'exp-v1',
+            role: 'Data Engineer & Product Analytics Specialist',
+            company: 'DataMatrix Analytics Solutions',
+            location: 'Bengaluru, India',
+            dates: 'July 2023 - Present',
+            bullets: [
+              {
+                id: 'b-v1',
+                text: 'Built automated ETL data pipelines in Python and SQL, processing over 2M daily user events to power core product metrics dashboards.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-v2',
+                text: 'Collaborated with product managers to define tracking specs and analyze user conversion funnels across onboarding flows.',
+                hasSuggestion: true,
+                suggestionType: 'impact',
+                suggestionTitle: 'Quantify Conversion Impact',
+                impactScore: 92,
+                suggestionDesc: 'Highlight specific product metrics and user activation gains.',
+                suggestedRewrite: 'Partnered with product managers to map event telemetry and analyze onboarding funnels, identifying drop-off points to optimize conversion.'
+              },
+              {
+                id: 'b-v3',
+                text: 'Conducted A/B test analysis on feature release variants, identifying bottlenecks and driving a 14% improvement in user activation.',
+                hasSuggestion: false
+              },
+              {
+                id: 'b-v4',
+                text: 'Assisted in building self-serve Metabase and Tableau dashboards for cross-functional product and growth teams.',
+                hasSuggestion: true,
+                suggestionType: 'verb',
+                suggestionTitle: 'Strong Action Verbs',
+                impactScore: 88,
+                suggestionDesc: 'Replace passive "Assisted in building" with active deliverable ownership.',
+                suggestedRewrite: 'Designed and deployed self-serve Metabase and Tableau analytics dashboards, enabling growth teams to track feature adoption autonomously.'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'skills',
+        title: 'Skills & Competencies',
+        content: 'Product Analytics, SQL (PostgreSQL, BigQuery), Python (Pandas, NumPy), A/B Testing & Experimentation, Funnel Analysis, Cohort Retention, Tableau, Metabase, ETL Pipelines, Data Modeling, Agile'
+      },
+      {
+        id: 'education',
+        title: 'Education',
+        content: 'Bachelor of Technology in Information Technology — National Institute of Technology Karnataka (2023, CGPA: 8.5/10.0)'
+      },
+      {
+        id: 'certifications',
+        title: 'Certifications',
+        content: 'Reforge Product Analytics Certified (2024), Google Data Analytics Professional Certificate (2023)'
+      },
+      {
+        id: 'projects',
+        title: 'Projects',
+        content: 'SaaS Churn Prediction & Retention Dashboard — Engineered machine learning feature pipelines analyzing user activity signals to predict churn risk across 5,000 accounts.\n\nE-Commerce Checkout Funnel Optimizer — Analyzed drop-off points in multi-step checkout workflows, delivering UX recommendations that increased completed transactions.'
+      }
+    ]
   }
 };
 
@@ -384,6 +598,23 @@ export const DEFAULT_JDS = {
       keywords: -8
     },
     qualitativeSummary: 'Solid engineering depth for technical leadership roles; add product roadmapping keywords for pure PM positions.',
+    atsIssues: []
+  },
+  pa: {
+    id: 'jd-pa',
+    title: 'Product Analyst',
+    company: 'FinTech / Growth Labs',
+    roleTag: 'Product Analyst',
+    rawText: `Seeking a Product Analyst with 2-4 years experience in SQL, Python, conversion funnels, A/B testing, cohort retention analysis, and product metrics telemetry. Experience collaborating with engineering and product teams to translate data into feature recommendations.`,
+    keywordsFound: ['SQL', 'Python', 'Product Analytics', 'Data Modeling', 'A/B Testing', 'Funnel Analysis', 'Tableau', 'Agile'],
+    keywordsMissing: ['Mixpanel', 'Amplitude', 'Statistical Significance'],
+    sectionBreakdown: {
+      skills: 15,
+      experience: 14,
+      formatting: 10,
+      keywords: 12
+    },
+    qualitativeSummary: 'Strong data foundation; highlights transferable ETL and telemetry skills for product analytics.',
     atsIssues: []
   }
 };
@@ -473,6 +704,26 @@ export const PERSONALIZED_QUESTIONS = [
     recommendedDuration: 90,
     keyCriteria: ['Active listening', 'Technical empathy', 'Shared goal alignment', 'Constructive consensus'],
     sampleGoodAnswer: 'When planning our Q3 roadmap, the Lead Architect wanted to dedicate 100% of the sprint cycle to technical debt refactoring, whereas I had scheduled two critical customer retention features. Rather than overriding the team, I scheduled a joint workshop to quantify the exact business cost of the technical debt—namely 450ms of query latency causing a 4% drop in funnel conversion. We co-created a balanced 60/40 allocation that resolved the high-risk database bottlenecks while shipping the top-requested customer export feature.'
+  },
+  {
+    id: 'q-pers-4',
+    category: 'Product & Data Translation',
+    mode: 'personalized',
+    role: 'Product Analyst',
+    question: 'How do you translate complex technical data engineering insights into actionable product recommendations for non-technical stakeholders?',
+    recommendedDuration: 90,
+    keyCriteria: ['Stakeholder empathy', 'Data storytelling', 'Business impact framing', 'Actionable takeaway'],
+    sampleGoodAnswer: 'When analyzing user drop-off in our onboarding funnel, our telemetry data revealed unindexed event queries causing latency. Rather than presenting raw query logs, I built a visual funnel dashboard showing that a 400ms delay correlated with a 12% drop in conversion. I framed the finding as an opportunity for immediate revenue lift, which helped product and engineering prioritize the fix.'
+  },
+  {
+    id: 'q-pers-5',
+    category: 'Experimentation & A/B Testing',
+    mode: 'personalized',
+    role: 'Product Analyst',
+    question: 'Describe how you would design and evaluate an A/B test for a new product feature with low initial sample size.',
+    recommendedDuration: 90,
+    keyCriteria: ['Hypothesis definition', 'Statistical power & sample size', 'Primary vs guardrail metrics', 'Decision framework'],
+    sampleGoodAnswer: 'I start by defining a clear hypothesis with one primary success metric—such as Day-7 feature retention—alongside guardrail metrics like error rates. With low sample size, I calculate Minimum Detectable Effect (MDE) in advance and focus the experiment on high-intent user cohorts or sequential testing methodologies.'
   }
 ];
 
@@ -634,7 +885,7 @@ class StateStore {
       currentPersona: 'priya',
       personas: PERSONAS,
       resume: workingResume,
-      resumeProfiles: [workingResume, SAMPLE_RESUMES.aarav],
+      resumeProfiles: [workingResume, SAMPLE_RESUMES.aarav, SAMPLE_RESUMES.vikram, SAMPLE_RESUMES.rohan, SAMPLE_RESUMES.meera],
       jobDescriptions: DEFAULT_JDS,
       currentJdKey: 'swe',
       hasActiveJd: true,
@@ -903,11 +1154,12 @@ class StateStore {
     }
   }
 
-  loadSampleResume(sampleKey = 'alex') {
-    const sample = SAMPLE_RESUMES[sampleKey] || SAMPLE_RESUMES.alex;
+  loadSampleResume(sampleKey = 'priya') {
+    const sample = SAMPLE_RESUMES[sampleKey] || SAMPLE_RESUMES.priya;
     this.state.resume = JSON.parse(JSON.stringify(sample));
     this.state.resolvedSuggestions = [];
     this.saveState();
+    this.notify();
   }
 
   // --- Backend AI Analysis Integration ---
@@ -981,8 +1233,47 @@ class StateStore {
     if (PERSONAS[personaId]) {
       this.state.currentPersona = personaId;
       const p = PERSONAS[personaId];
-      this.state.resume.candidate.name = p.name;
+
+      // Update user auth profile in session if present
+      if (this.state.auth?.user) {
+        this.state.auth.user.name = p.name;
+        this.state.auth.user.plan = p.plan;
+        this.state.auth.user.avatar = p.avatar;
+      }
+
+      // Switch active test context resume sample tied specifically to this persona
+      if (SAMPLE_RESUMES[personaId]) {
+        this.state.resume = JSON.parse(JSON.stringify(SAMPLE_RESUMES[personaId]));
+        this.state.resume.candidate.name = p.name;
+      } else {
+        this.state.resume.candidate.name = p.name;
+      }
+
+      // Ensure this persona's resume is in the profiles list
+      if (!this.state.resumeProfiles.some(prof => prof.id === this.state.resume.id)) {
+        this.state.resumeProfiles.unshift(this.state.resume);
+      }
+
+      // Switch target JD context if matching
+      if (personaId === 'vikram' && this.state.jobDescriptions['pa']) {
+        this.state.currentJdKey = 'pa';
+        this.state.hasActiveJd = true;
+      } else if (this.state.jobDescriptions['swe']) {
+        this.state.currentJdKey = 'swe';
+        this.state.hasActiveJd = true;
+      }
+
+      // Calibrate active dashboard scores to persona's baseline metrics
+      this.state.dashboardScores = {
+        resume_score: p.atsScore,
+        ats_score: p.atsScore,
+        keyword_alignment: p.keywordAlignment,
+        interview_readiness: p.interviewReadiness
+      };
+
+      this.state.resolvedSuggestions = [];
       this.saveState();
+      this.notify();
     }
   }
 

@@ -12,6 +12,10 @@ import { analyticsView } from './analyticsView.js';
 import { jobTrackerView } from './jobTracker.js';
 import { complianceSettingsView } from './compliance.js';
 
+// Expose store globally for runtime access & testing
+window.store = store;
+window.__careerAiStore = store;
+
 // Global Toast Notification Helper
 window.showToast = function(message, type = 'info') {
   const container = document.getElementById('global-toast-container');

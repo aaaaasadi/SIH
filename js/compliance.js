@@ -35,14 +35,16 @@ export class ComplianceSettingsView {
                 <div class="persona-card-item ${isActive ? 'active' : ''}" data-persona-id="${p.id}" 
                   style="border: 2px solid ${isActive ? 'var(--primary)' : 'var(--border-light)'}; border-radius: var(--radius-lg); padding: 14px; background: ${isActive ? 'var(--primary-light)' : 'white'}; cursor: pointer; transition: all 0.2s ease;">
                   <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <img src="${p.avatar}" alt="${p.name}" style="width: 38px; height: 38px; border-radius: 9999px; object-fit: cover;">
+                    <img src="${p.avatar}" alt="${p.name}" style="width: 42px; height: 42px; border-radius: 9999px; object-fit: cover; border: 1.5px solid #E2E8F0;">
                     <div>
-                      <div style="font-weight: 700; font-size: 0.9rem; color: #0F172A;">${p.name}</div>
-                      <div style="font-size: 0.72rem; color: var(--primary); font-weight: 600;">${p.plan}</div>
+                      <div style="font-weight: 700; font-size: 0.92rem; color: #0F172A;">${p.name}</div>
+                      <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">${p.plan}</div>
                     </div>
                   </div>
-                  <div style="font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 4px;">${p.role}</div>
-                  <div style="font-size: 0.72rem; color: #64748B; line-height: 1.35;">${p.bio}</div>
+                  <div style="font-size: 0.8rem; font-weight: 600; color: #1E293B; margin-bottom: 4px;">
+                    ${p.title ? `<span style="color: var(--primary); font-weight: 700;">${p.role}:</span> ${p.title}` : p.role}
+                  </div>
+                  <div style="font-size: 0.74rem; color: #64748B; line-height: 1.4;">${p.bio}</div>
                 </div>
               `;
             }).join('')}
