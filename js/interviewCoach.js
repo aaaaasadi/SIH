@@ -16,6 +16,7 @@
 
 import { store } from './state.js';
 import { speechEngine } from './speechEngine.js';
+import { API_BASE_URL } from './api.js';
 
 export class InterviewCoachView {
   constructor() {
@@ -507,7 +508,7 @@ export class InterviewCoachView {
     };
 
     try {
-      const res = await fetch('/api/interview/start', {
+      const res = await fetch(`${API_BASE_URL}/api/interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1035,7 +1036,7 @@ export class InterviewCoachView {
     });
 
     try {
-      const res = await fetch('/api/interview/evaluate', {
+      const res = await fetch(`${API_BASE_URL}/api/interview/evaluate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1182,7 +1183,7 @@ export class InterviewCoachView {
 
     // Fetch next adaptive question from backend
     try {
-      const res = await fetch('/api/interview/question', {
+      const res = await fetch(`${API_BASE_URL}/api/interview/question`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1233,7 +1234,7 @@ export class InterviewCoachView {
     }
 
     try {
-      const res = await fetch('/api/interview/finish', {
+      const res = await fetch(`${API_BASE_URL}/api/interview/finish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1529,7 +1530,7 @@ export class InterviewCoachView {
     modalOverlay.classList.add('active');
 
     try {
-      const res = await fetch(`/api/interview/report/${sessionId}`);
+      const res = await fetch(`${API_BASE_URL}/api/interview/report/${sessionId}`);
       if (!res.ok) throw new Error('Report not found');
       const report = await res.json();
 

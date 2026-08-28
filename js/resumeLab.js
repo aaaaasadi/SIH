@@ -6,6 +6,7 @@
 
 import { store, PERSONAS, SAMPLE_RESUMES } from './state.js';
 import { aiEngine } from './aiEngine.js';
+import { API_BASE_URL } from './api.js';
 
 export class ResumeLabView {
   constructor() {
@@ -650,7 +651,7 @@ export class ResumeLabView {
     }
 
     try {
-      const response = await fetch('/api/resume/analyze', {
+      const response = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
         method: 'POST',
         body: formData
       });
