@@ -576,6 +576,7 @@ export class InterviewCoachView {
     const isGuest = store.isGuest();
 
     container.innerHTML = `
+      <div class="interview-live-shell ${isEvaluated ? 'has-evaluation' : ''}">
       <!-- Top Status & Progress Bar -->
       <div class="interview-header-controls">
         <div class="interview-room-title">
@@ -627,7 +628,7 @@ export class InterviewCoachView {
       <!-- Main Live Grid -->
       <div class="interview-main-grid">
         <!-- Left: Candidate Video / Audio Stream -->
-        <div class="video-frame-box">
+        <div class="video-frame-box ${this.session.isRecording ? 'is-recording' : ''}">
           <video id="webcam-stream" class="video-stream-element" autoplay playsinline muted style="display: none;"></video>
           <img id="simulated-feed" src="${this.simulatedVideoUrl}" alt="Candidate Stream" class="simulated-candidate-video">
 
@@ -640,8 +641,8 @@ export class InterviewCoachView {
           </div>
 
           <!-- Live Audio Waveform Bars -->
-          <div class="waveform-container" id="audio-waveform-bars" style="position: absolute; bottom: 50px; left: 14px; right: 14px; height: 28px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); border-radius: var(--radius-sm); padding: 4px 8px;">
-            ${Array.from({ length: 24 }).map((_, i) => `<div class="wave-bar" style="height: ${Math.max(15, Math.sin(i) * 80 + 20)}%;"></div>`).join('')}
+          <div class="waveform-container ${this.session.isRecording ? 'is-recording' : ''}" id="audio-waveform-bars" style="position: absolute; bottom: 50px; left: 14px; right: 14px; height: 28px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); border-radius: var(--radius-sm); padding: 4px 8px;">
+            ${Array.from({ length: 24 }).map((_, i) => `<div class="wave-bar" style="--wave-index: ${i}; height: ${Math.max(15, Math.sin(i) * 80 + 20)}%;"></div>`).join('')}
           </div>
         </div>
 
@@ -820,6 +821,7 @@ export class InterviewCoachView {
             </div>
           `}
         </div>
+      </div>
       </div>
     `;
 
