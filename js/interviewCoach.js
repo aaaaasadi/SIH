@@ -1343,6 +1343,12 @@ export class InterviewCoachView {
         difficulty: report.difficulty,
         overall_score: report.overall_score,
         score: report.overall_score,
+        technical_score: report.performance_breakdown?.technical_knowledge,
+        communication_score: report.performance_breakdown?.communication,
+        structure_score: this.averageAnswerMetric('completeness'),
+        relevance_score: report.performance_breakdown?.relevance,
+        problem_solving_score: report.performance_breakdown?.problem_solving,
+        speech_summary: this.getSpeechSummary(this.session.answers),
         date: report.date,
         report_json: JSON.stringify(report)
       });
@@ -1620,6 +1626,23 @@ export class InterviewCoachView {
     const resume = store.state.resume;
     if (!resume) return '';
     return `${resume.candidate?.name || ''}\n${(resume.sections || []).map(section => `${section.title}: ${section.content || ''} ${(section.items || []).map(item => (item.bullets || []).map(bullet => bullet.text).join(' ')).join(' ')}`).join('\n')}`;
+  }
+
+  getSpeechSummary(answers) {
+    const metrics = (answers || []).map(answer => answer.speech_analysis).filter(Boolean);
+    if (!metrics.length) return null;
+    return {
+      wpm: Math.round(metrics.reduce((sum, item) => sum + item.wpm, 0) / metrics.length),
+      filler_count: metrics.reduce((sum, item) => sum + item.filler_count, 0),
+      pause_count: metrics.reduce((sum, item) => sum + item.pause_count, 0),
+      duration_seconds: metrics.reduce((sum, item) => sum + item.duration_seconds, 0),
+      clarity: Math.round(metrics.reduce((sum, item) => sum + item.clarity, 0) / metrics.length)
+    };
+  }
+
+  averageAnswerMetric(metric) {
+    const scores = this.session.answers.map(answer => Number(answer.scores_breakdown?.[metric])).filter(Number.isFinite);
+    return scores.length ? Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 10) : null;
   }
 
   buildRoadmap(report) {

@@ -1,9 +1,15 @@
-/**
- * CareerAI - Interview Performance & Coaching Analytics View (PCE-SW-PS-9 - v2.1)
- * Matches Screenshot 1 & PRD Section 7.2 (Clear "Demo Preview" Badges for Guests)
- */
+import { store } from './state.js';
 
-import { store, DEFAULT_SESSIONS } from './state.js';
+const formatDate = (value) => {
+  if (!value) return 'Recent';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const average = (values) => {
+  const usable = values.filter(value => Number.isFinite(Number(value)));
+  return usable.length ? Math.round(usable.reduce((sum, value) => sum + Number(value), 0) / usable.length) : null;
+};
 
 export class AnalyticsView {
   constructor() {
@@ -12,185 +18,97 @@ export class AnalyticsView {
 
   render(container) {
     this.container = container;
-    const isGuest = store.isGuest();
-    const sessions = isGuest ? DEFAULT_SESSIONS : (store.state.sessions || []);
-    const resumeHistory = isGuest ? [] : (store.state.resumeScoreHistory || []);
-    const latestSession = sessions[0];
-    const latestResume = resumeHistory[resumeHistory.length - 1];
-    const readinessScore = isGuest ? 82 : latestSession?.overall_score;
-    const hasPersonalData = Boolean(latestSession || latestResume);
+    const state = store.state;
+    const resumeHistory = [...(state.resumeScoreHistory || [])].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const interviewSessions = [...(state.sessions || [])].sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+    const recent = [
+      ...resumeHistory.map(item => ({ type: 'Resume Analysis', score: item.resume_score ?? item.score, date: item.date })),
+      ...interviewSessions.map(item => ({ type: 'Mock Interview', score: item.overall_score ?? item.score, date: item.date }))
+    ].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 8);
+    const latestResume = resumeHistory.at(-1);
+    const previousResume = resumeHistory.at(-2);
+    const latestInterview = interviewSessions.at(-1);
+    const previousInterview = interviewSessions.at(-2);
+    const overallCurrent = latestInterview?.overall_score ?? latestResume?.resume_score;
+    const overallPrevious = latestInterview ? previousInterview?.overall_score : previousResume?.resume_score;
+    const metrics = [
+      ['Resume Score', latestResume?.resume_score, previousResume?.resume_score, false],
+      ['ATS Score', latestResume?.ats_score, previousResume?.ats_score, false],
+      ['Skills Score', latestResume?.skills_score, previousResume?.skills_score, false],
+      ['Content / Projects', latestResume?.content_projects_score, previousResume?.content_projects_score, false],
+      ['Interview Score', latestInterview?.overall_score, previousInterview?.overall_score, false],
+      ['Communication', latestInterview?.communication_score, previousInterview?.communication_score, false],
+      ['Technical Knowledge', latestInterview?.technical_score, previousInterview?.technical_score, false],
+      ['Answer Structure', latestInterview?.structure_score, previousInterview?.structure_score, false],
+      ['Relevance', latestInterview?.relevance_score, previousInterview?.relevance_score, false]
+    ];
+    const latestSpeech = latestInterview?.speech_summary;
+    const previousSpeech = previousInterview?.speech_summary;
+    const speechMetrics = [
+      ['Speaking Speed', latestSpeech?.wpm, previousSpeech?.wpm, false, 'WPM'],
+      ['Filler Words', latestSpeech?.filler_count, previousSpeech?.filler_count, true, ''],
+      ['Answer Duration', latestSpeech?.duration_seconds, previousSpeech?.duration_seconds, false, 'sec'],
+      ['Clarity', latestSpeech?.clarity, previousSpeech?.clarity, false, '/100']
+    ];
+    const analysis = state.latestAnalysis;
+    const skills = [...new Set([...(analysis?.skills || []), ...(analysis?.matching_keywords || [])])].slice(0, 10);
+    const missingSkills = analysis?.missing_skills || analysis?.missing_keywords || [];
+    const communication = latestInterview?.communication_score;
+    const skillRows = skills.map(skill => ({ name: skill, value: (analysis?.matching_keywords || []).includes(skill) ? 100 : (latestResume?.skills_score ?? null) }));
+    missingSkills.slice(0, 4).forEach(skill => {
+      if (!skillRows.some(item => item.name.toLowerCase() === skill.toLowerCase())) skillRows.push({ name: `${skill} (gap)`, value: 0 });
+    });
+    if (communication != null) skillRows.push({ name: 'Communication', value: communication });
+    const biggestImprovement = this.biggestImprovement(metrics, speechMetrics);
+    const biggestWeakness = this.biggestWeakness(metrics, missingSkills);
+    const nextAction = biggestWeakness?.label?.includes('Resume') ? 'Complete a resume analysis after addressing the top missing skill.' : biggestWeakness?.label?.includes('Speech') ? 'Complete another voice mock interview and focus on the speech feedback.' : 'Complete a technical mock interview.';
 
     container.innerHTML = `
-      ${isGuest ? `
-        <!-- Demo Analytics Banner (PRD Section 7.2 & 7.3) -->
-        <div class="guest-analytics-notice">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.2rem;">📊</span>
-            <div>
-              <strong>Sample Performance Trends (Priya Sharma):</strong>
-              <span style="color: #475569;"> The charts below display demo data. Create a free account to unlock your personal interview analytics, speech pacing history, and STAR growth charts.</span>
-            </div>
-          </div>
-          <button class="btn-primary" id="btn-analytics-guest-signup" style="font-size: 0.76rem; padding: 5px 14px;">
-            Sign Up to Track Your Trends →
-          </button>
-        </div>
-      ` : ''}
-
       <div class="performance-header">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <h2 style="margin: 0;">Interview Performance</h2>
-          ${isGuest ? `<span class="guest-badge-pill">Sample Data Preview</span>` : ''}
-        </div>
-        <p style="margin-top: 4px;">Review your mock interview analytics, pacing, and AI coaching insights over time.</p>
+        <div class="progress-title-row"><div><h2 style="margin: 0;">Progress Tracking</h2><p style="margin-top: 4px;">See how repeated resume reviews and mock interviews improve your readiness.</p></div><span class="mode-tag">Personal Progress</span></div>
       </div>
-
-      <div class="performance-grid">
-        <!-- Left Column: Readiness Score & Skill Breakdown -->
-        <div>
-          <!-- Readiness Score Card -->
-          <div class="readiness-score-card">
-            <div class="card-top-row">
-              <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
-                Readiness Score
-                ${isGuest ? `<span class="demo-chip-tag">Demo Benchmark</span>` : ''}
-              </div>
-              <span class="badge-top-percent">TOP 15%</span>
-            </div>
-
-            <div class="readiness-body">
-              <!-- Radial Gauge -->
-              <div class="gauge-container">
-                <svg class="gauge-svg" viewBox="0 0 100 100">
-                  <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
-                  <circle class="gauge-fill" cx="50" cy="50" r="40"
-                    stroke-dasharray="251.2"
-                    stroke-dashoffset="${readinessScore ? 251.2 - (251.2 * readinessScore) / 100 : 251.2}">
-                  </circle>
-                </svg>
-                <div class="gauge-text">
-                  ${readinessScore ? `<div class="gauge-value">${readinessScore}<span>%</span></div>` : '<div class="gauge-value">—</div>'}
-                </div>
-              </div>
-
-              <!-- Growth Sparkline Box -->
-              <div class="trend-spark-box">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                <span>${isGuest ? '+12% demo trend' : (latestSession ? 'Based on your latest saved interview' : 'Complete an interview to start tracking')}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Skill Breakdown Card -->
-          <div class="skill-breakdown-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-              <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Skill Breakdown</div>
-              ${isGuest ? `<span class="demo-chip-tag">Sample Profile</span>` : ''}
-            </div>
-
-            ${!isGuest && !hasPersonalData ? '<div class="empty-progress-state">Complete a resume analysis or interview to build your personal skill progress.</div>' : ''}
-
-            <!-- Behavioral -->
-            <div class="skill-bar-row">
-              <div class="skill-bar-header">
-                <span>Behavioral (STAR Method)</span>
-                <span>${isGuest ? '88%' : (latestSession?.communication_score || '—')}</span>
-              </div>
-              <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill primary" style="width: ${isGuest ? 88 : (latestSession?.communication_score || 0)}%;"></div>
-              </div>
-            </div>
-
-            <!-- Technical Communication -->
-            <div class="skill-bar-row">
-              <div class="skill-bar-header">
-                <span>Technical Communication</span>
-                <span>${isGuest ? '75%' : (latestSession?.technical_score || latestResume?.ats_score || '—')}</span>
-              </div>
-              <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill primary" style="width: ${isGuest ? 75 : (latestSession?.technical_score || latestResume?.ats_score || 0)}%;"></div>
-              </div>
-            </div>
-
-            <!-- Resume Keyword Alignment -->
-            <div class="skill-bar-row">
-              <div class="skill-bar-header">
-                <span>Resume Keyword Alignment</span>
-                <span>${isGuest ? '62%' : (latestResume?.keyword_alignment || '—')}</span>
-              </div>
-              <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill warning" style="width: ${isGuest ? 62 : (latestResume?.keyword_alignment || 0)}%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: AI Coach Insights & Recent Sessions -->
-        <div class="insights-column">
-          <!-- AI Coach Insights Card -->
-          <div class="card" style="padding: 24px;">
-            <div class="ai-panel-header" style="margin-bottom: 16px;">
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
-              AI Coach Insights
-            </div>
-
-            <!-- Strengths -->
-            <div class="insight-block">
-              <div class="insight-label strengths">👍 STRENGTHS</div>
-              <div class="insight-text">
-                Strong structural answers in technical questions. Good eye contact and concise framing maintained.
-              </div>
-            </div>
-
-            <!-- Area for Growth -->
-            <div class="insight-block">
-              <div class="insight-label growth">📈 AREA FOR GROWTH</div>
-              <div class="insight-text">
-                Work on quantifying the Result in the STAR method for leadership questions.
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Sessions Card -->
-          <div class="recent-sessions-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-              <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-main);">Recent Sessions</div>
-              ${isGuest ? `<span class="demo-chip-tag">Sample Logs</span>` : ''}
-            </div>
-
-            <div class="session-list">
-              ${sessions.length ? sessions.map(s => `
-                <div class="session-list-item">
-                  <div>
-                    <div class="session-name">${s.role}</div>
-                    <div class="session-meta">${s.category} • ${s.date}</div>
-                  </div>
-                  <span class="session-score-pill">${s.score}%</span>
-                </div>
-              `).join('') : '<div class="empty-progress-state">No saved interview sessions yet. Complete a voice interview to see your scores here.</div>'}
-            </div>
-
-            <button class="btn-view-all" id="btn-view-all-history">View All History</button>
-          </div>
-        </div>
-      </div>
+      ${!recent.length ? this.emptyState() : `
+        <section class="progress-overview-grid">
+          <div class="readiness-score-card progress-readiness-card"><div class="card-top-row"><strong>Overall Career Readiness</strong><span class="demo-chip-tag">Stored locally</span></div><div class="progress-score-line"><strong>${overallCurrent ?? '—'}</strong><span>/ 100</span></div><div class="progress-bar-wrap"><div class="progress-bar-fill primary" style="width: ${overallCurrent || 0}%;"></div></div><div class="progress-comparison-note">${this.comparison(overallPrevious, overallCurrent, false, 'previous score')}</div></div>
+          <div class="card progress-summary-card"><div class="report-section-title">What changed</div><div class="progress-summary-list"><div><strong>${resumeHistory.length}</strong><span>Resume analyses</span></div><div><strong>${interviewSessions.length}</strong><span>Mock interviews</span></div><div><strong>${latestSpeech ? 'Available' : 'Not yet'}</strong><span>Speech data</span></div></div></div>
+        </section>
+        <section class="progress-section"><div class="progress-section-heading"><h3>Resume Progress</h3><span>Previous → Current</span></div><div class="progress-metric-grid">${metrics.slice(0, 4).map(item => this.metricCard(item)).join('')}</div></section>
+        <section class="progress-section"><div class="progress-section-heading"><h3>Interview Progress</h3><span>Previous → Current</span></div><div class="progress-metric-grid">${metrics.slice(4).map(item => this.metricCard(item)).join('')}</div></section>
+        <section class="progress-section"><div class="progress-section-heading"><h3>Speech Progress</h3><span>${latestSpeech ? 'Measured from recorded answers' : 'Record a voice answer to begin'}</span></div><div class="progress-metric-grid">${speechMetrics.map(item => this.metricCard(item, true)).join('')}</div></section>
+        <section class="progress-section"><div class="progress-section-heading"><h3>Skill Progress</h3><span>Resume coverage and interview signals</span></div>${skillRows.length ? `<div class="skill-progress-list">${skillRows.map(item => `<div class="skill-progress-row"><div><strong>${item.name}</strong><span>${item.value == null ? 'Not scored yet' : `${item.value}%`}</span></div><div class="progress-bar-wrap"><div class="progress-bar-fill primary" style="width: ${item.value || 0}%;"></div></div></div>`).join('')}</div>` : '<div class="progress-empty-inline">Skills will appear after a resume analysis.</div>'}</section>
+        <section class="progress-section"><div class="progress-section-heading"><h3>Recent Sessions</h3><span>Saved in this account</span></div><div class="recent-progress-list">${recent.map(item => `<div><span>${formatDate(item.date)}</span><strong>${item.type}</strong><b>${item.score ?? '—'}/100</b></div>`).join('')}</div></section>
+        <section class="progress-section ai-progress-summary"><div class="progress-section-heading"><h3>AI Improvement Summary</h3><span>Based on your stored results</span></div><p><strong>Biggest improvement:</strong> ${biggestImprovement?.text || 'Complete another session to identify your biggest improvement.'}</p><p><strong>Biggest weakness:</strong> ${biggestWeakness?.text || 'Complete a resume analysis or interview to identify a weakness.'}</p><p><strong>Recommended next action:</strong> ${nextAction}</p></section>
+      `}
     `;
-
-    this.attachEventListeners();
   }
 
-  attachEventListeners() {
-    document.getElementById('btn-analytics-guest-signup')?.addEventListener('click', () => {
-      window.openSaveSignupPrompt('dashboard');
-    });
+  metricCard([label, current, previous, lowerBetter, unit = ''], speech = false) {
+    const hasCurrent = current != null;
+    return `<div class="progress-metric-card ${speech ? 'speech-metric-card' : ''}"><span>${label}</span><div class="progress-metric-values"><strong>${hasCurrent ? current : '—'}${hasCurrent ? unit : ''}</strong><small>${previous != null ? `${previous}${unit} →` : 'No previous data'}</small></div><div class="progress-metric-delta">${hasCurrent && previous != null ? this.comparison(previous, current, lowerBetter, 'previous') : (hasCurrent ? 'Complete another session to see progress' : 'Not measured yet')}</div></div>`;
+  }
 
-    document.getElementById('btn-view-all-history')?.addEventListener('click', () => {
-      if (store.isGuest()) {
-        window.openSaveSignupPrompt('dashboard');
-      } else {
-        window.showToast?.('Displaying historical mock interview logs', 'info');
-      }
-    });
+  comparison(previous, current, lowerBetter, suffix) {
+    if (previous == null || current == null) return 'No previous data yet';
+    const delta = current - previous;
+    const improved = lowerBetter ? delta < 0 : delta > 0;
+    return `<span class="${improved ? 'progress-positive' : delta === 0 ? '' : 'progress-negative'}">${delta > 0 ? '+' : ''}${delta} ${suffix}</span>`;
+  }
+
+  biggestImprovement(metrics, speechMetrics) {
+    const all = [...metrics, ...speechMetrics].filter(item => item[1] != null && item[2] != null).map(item => ({ label: item[0], delta: item[3] ? item[2] - item[1] : item[1] - item[2] }));
+    const best = all.sort((a, b) => b.delta - a.delta)[0];
+    return best && best.delta > 0 ? { text: `${best.label} improved by ${best.delta} points.` } : null;
+  }
+
+  biggestWeakness(metrics, missingSkills) {
+    const scored = metrics.filter(item => item[1] != null).sort((a, b) => a[1] - b[1])[0];
+    if (scored && scored[1] < 70) return { label: scored[0].includes('Resume') || scored[0].includes('ATS') ? 'Resume' : scored[0].includes('Speech') ? 'Speech' : 'Interview', text: `${scored[0]} is currently ${scored[1]}/100.` };
+    if (missingSkills.length) return { label: 'Resume', text: `Your resume analysis flagged ${missingSkills[0]} as a skill gap.` };
+    return null;
+  }
+
+  emptyState() {
+    return '<div class="progress-empty-state"><div class="progress-empty-icon">↗</div><h3>Your progress starts here</h3><p>Complete a resume analysis or a five-question mock interview. Your scores, speech metrics, and improvements will appear here automatically.</p></div>';
   }
 }
 

@@ -883,6 +883,7 @@ class StateStore {
       },
       latestAnalysis: null,
       resumeScoreHistory: [],
+      roadmapTasks: {},
       currentPersona: 'priya',
       personas: PERSONAS,
       resume: workingResume,
@@ -1167,8 +1168,11 @@ class StateStore {
     this.state.resumeScoreHistory = this.state.resumeScoreHistory || [];
     this.state.resumeScoreHistory.push({
       score: result.resume_score,
+      resume_score: result.resume_score,
       ats_score: result.ats_score,
       keyword_alignment: result.keyword_alignment,
+      skills_score: this.calculateSkillsScore(result),
+      content_projects_score: this.calculateContentScore(result),
       date: new Date().toISOString()
     });
     this.state.dashboardScores = {
@@ -1201,6 +1205,20 @@ class StateStore {
 
     this.state.resolvedSuggestions = [];
     this.saveState();
+  }
+
+  calculateSkillsScore(result) {
+    const skills = result.skills || result.matching_keywords || [];
+    const missing = result.missing_skills || result.missing_keywords || [];
+    const total = skills.length + missing.length;
+    return total ? Math.round((skills.length / total) * 100) : null;
+  }
+
+  calculateContentScore(result) {
+    const strengths = result.strengths || [];
+    const weaknesses = result.weaknesses || [];
+    const total = strengths.length + weaknesses.length;
+    return total ? Math.round((strengths.length / total) * 100) : null;
   }
 
   // --- Target Job Description Mutators ---
@@ -1455,6 +1473,13 @@ class StateStore {
     };
     this.state.sessions.unshift(newSession);
     this.saveState();
+  }
+
+  setRoadmapTaskStatus(taskId, completed) {
+    this.state.roadmapTasks = this.state.roadmapTasks || {};
+    this.state.roadmapTasks[taskId] = completed;
+    this.saveState();
+    this.notify();
   }
 
   setInterviewMode(mode) {

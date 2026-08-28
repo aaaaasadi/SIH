@@ -11,6 +11,7 @@ import { interviewCoachView } from './interviewCoach.js';
 import { analyticsView } from './analyticsView.js';
 import { jobTrackerView } from './jobTracker.js';
 import { complianceSettingsView } from './compliance.js';
+import { roadmapView } from './roadmapView.js';
 
 // Expose store globally for runtime access & testing
 window.store = store;
@@ -546,6 +547,10 @@ class AppController {
       case 'performance':
       case 'market-trends':
         analyticsView.render(this.contentBody);
+        break;
+      case 'roadmap':
+      case 'my-roadmap':
+        roadmapView.render(this.contentBody);
         break;
       case 'settings':
         complianceSettingsView.render(this.contentBody);
