@@ -3880,6 +3880,178 @@ body {
   }
 }
 
+/* CareerAI Assistant: isolated floating help surface. */
+#careerai-assistant-root {
+  position: relative;
+  z-index: 1000;
+}
+
+.careerai-assistant-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--primary);
+  box-shadow: 0 8px 22px rgba(79, 70, 229, 0.3);
+  cursor: pointer;
+}
+
+.careerai-assistant-launcher svg {
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
+}
+
+.careerai-assistant-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  width: min(360px, calc(100vw - 32px));
+  height: min(520px, calc(100vh - 120px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+}
+
+.careerai-assistant-panel[hidden] {
+  display: none;
+}
+
+.careerai-assistant-panel.is-minimized {
+  height: auto;
+}
+
+.careerai-assistant-panel.is-minimized > :not(.careerai-assistant-header) {
+  display: none;
+}
+
+.careerai-assistant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.careerai-assistant-title,
+.careerai-assistant-title > div {
+  display: flex;
+  align-items: center;
+}
+
+.careerai-assistant-title { gap: 9px; }
+.careerai-assistant-title > div { align-items: flex-start; flex-direction: column; gap: 2px; }
+.careerai-assistant-title strong { font-size: 0.82rem; }
+.careerai-assistant-title small { font-size: 0.65rem; opacity: 0.78; }
+.careerai-assistant-spark { font-size: 1.35rem; line-height: 1; }
+
+.careerai-assistant-controls { display: flex; gap: 2px; }
+.careerai-assistant-controls button {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  color: #ffffff;
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.careerai-assistant-context {
+  padding: 8px 14px;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.careerai-assistant-messages {
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.careerai-assistant-message {
+  max-width: 88%;
+  margin-bottom: 9px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  color: var(--text-main);
+  background: var(--bg-subtle);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.careerai-assistant-message.user {
+  margin-left: auto;
+  color: #ffffff;
+  background: var(--primary);
+}
+
+.careerai-assistant-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 12px 10px;
+}
+
+.careerai-assistant-quick-actions button {
+  padding: 6px 8px;
+  color: var(--primary);
+  background: var(--primary-light);
+  border: 1px solid var(--border-focus);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  cursor: pointer;
+}
+
+.careerai-assistant-form {
+  display: flex;
+  gap: 7px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.careerai-assistant-form input {
+  min-width: 0;
+  flex: 1;
+  padding: 9px 10px;
+  color: var(--text-main);
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.74rem;
+}
+
+.careerai-assistant-form button {
+  width: 34px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  background: var(--primary);
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .careerai-assistant-launcher { right: 16px; bottom: 16px; }
+  .careerai-assistant-panel { right: 16px; bottom: 80px; width: calc(100vw - 32px); height: min(500px, calc(100vh - 104px)); }
+}
+
 .answer-textarea {
   width: 100%;
   min-height: 110px;

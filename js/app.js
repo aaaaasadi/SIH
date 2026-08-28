@@ -12,6 +12,7 @@ import { analyticsView } from './analyticsView.js';
 import { jobTrackerView } from './jobTracker.js';
 import { complianceSettingsView } from './compliance.js';
 import { roadmapView } from './roadmapView.js';
+import { careerAiAssistant } from './assistant.js';
 
 // Expose store globally for runtime access & testing
 window.store = store;
@@ -363,6 +364,7 @@ class AppController {
       this.bindGlobalInteractions();
       this.renderSidebarProfile();
       this.renderCurrentView();
+      careerAiAssistant.init();
 
       store.subscribe(() => {
         this.renderSidebarProfile();
