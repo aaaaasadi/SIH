@@ -3,7 +3,7 @@
  * Implements GDPR/CCPA Data Export, Erasure & Persona Switching
  */
 
-import { store, PERSONAS, DEFAULT_USER_AVATAR } from './state.js';
+import { store, PERSONAS } from './state.js';
 
 export class ComplianceSettingsView {
   constructor() {
@@ -13,48 +13,16 @@ export class ComplianceSettingsView {
   render(container) {
     this.container = container;
     const state = store.state;
-    const activeProfile = store.getActiveProfile();
-    const isRealUser = state.auth?.isAuthenticated && !state.auth?.isGuest && !state.auth?.isPersonaMode;
+    const currentPersona = PERSONAS[state.currentPersona] || PERSONAS.priya;
 
     container.innerHTML = `
       <div style="max-width: 900px; margin: 0 auto;">
         <div style="margin-bottom: 24px;">
           <h2 style="font-size: 1.65rem; font-weight: 700; color: var(--text-main);">Settings & Compliance</h2>
-          <p style="color: var(--text-muted); font-size: 0.95rem;">Manage your active account profile, persona test switches, GDPR/CCPA privacy controls, and AI coaching preferences.</p>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Manage your active persona profile, GDPR/CCPA privacy controls, and AI coaching preferences.</p>
         </div>
 
-        <!-- 1. User Profile & Avatar Customization -->
-        <div class="card" style="margin-bottom: 24px;">
-          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Profile & Custom Avatar</h3>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px;">
-            Every new real user account starts with a generic neutral placeholder avatar. You can optionally upload your own custom photo below.
-          </p>
-
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 16px; background: #F8FAFC; border-radius: var(--radius-md); border: 1.5px solid var(--border-light);">
-            <div style="display: flex; align-items: center; gap: 14px;">
-              <img id="settings-current-avatar-preview" src="${activeProfile.avatar}" alt="${activeProfile.name}" style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-              <div>
-                <div style="font-weight: 700; font-size: 1rem; color: #0F172A;">${activeProfile.name}</div>
-                <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">${activeProfile.plan}</div>
-                <div style="font-size: 0.72rem; color: #64748B; margin-top: 2px;">
-                  ${isRealUser ? '👤 Real User Account (Default Neutral Avatar Assigned)' : '🧪 Test Persona Mode Active'}
-                </div>
-              </div>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <input type="file" id="inp-custom-avatar-file" accept="image/*" style="display: none;">
-              <button class="btn-primary" id="btn-upload-custom-avatar" style="font-size: 0.8rem; padding: 8px 16px; display: flex; align-items: center; gap: 6px;">
-                <span>📷</span> Upload Custom Photo
-              </button>
-              <button class="action-pill-btn" id="btn-reset-default-avatar" style="font-size: 0.8rem; padding: 8px 14px; background: white; border: 1.5px solid #CBD5E1; color: #475569;">
-                Reset to Default Placeholder
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Active Persona Selector (PRD Section 4 - 5 Intact Personas) -->
+        <!-- 1. Active Persona Selector (PRD Section 4) -->
         <div class="card" style="margin-bottom: 24px;">
           <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Target User Persona</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px;">Switch test personas to evaluate tailored scoring and interview rubrics across different career stages.</p>
@@ -62,7 +30,7 @@ export class ComplianceSettingsView {
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
             ${Object.keys(PERSONAS).map(k => {
               const p = PERSONAS[k];
-              const isActive = (state.auth?.isPersonaMode || store.isGuest()) && p.id === state.currentPersona;
+              const isActive = p.id === state.currentPersona;
               return `
                 <div class="persona-card-item ${isActive ? 'active' : ''}" data-persona-id="${p.id}" 
                   style="border: 2px solid ${isActive ? 'var(--primary)' : 'var(--border-light)'}; border-radius: var(--radius-lg); padding: 14px; background: ${isActive ? 'var(--primary-light)' : 'white'}; cursor: pointer; transition: all 0.2s ease;">
@@ -83,7 +51,7 @@ export class ComplianceSettingsView {
           </div>
         </div>
 
-        <!-- 3. GDPR & CCPA Compliance Center (PRD Section 9.1) -->
+        <!-- 2. GDPR & CCPA Compliance Center (PRD Section 9.1) -->
         <div class="card" style="margin-bottom: 24px;">
           <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Privacy & Data Control (GDPR / CCPA)</h3>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 18px;">Under GDPR Article 15/17 & CCPA, you retain 100% ownership over your uploaded resumes, interview transcripts, and AI coaching reports.</p>
@@ -134,37 +102,7 @@ export class ComplianceSettingsView {
   }
 
   attachEventListeners() {
-    // Custom Avatar File Upload
-    const fileInput = document.getElementById('inp-custom-avatar-file');
-    document.getElementById('btn-upload-custom-avatar')?.addEventListener('click', () => {
-      fileInput?.click();
-    });
-
-    fileInput?.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        window.showToast?.('Please upload a valid image file (PNG, JPG, WEBP).', 'warning');
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (loadEvt) => {
-        const dataUrl = loadEvt.target.result;
-        store.updateUserAvatar(dataUrl);
-        window.showToast?.('Custom avatar updated successfully!', 'success');
-        this.render(this.container);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Reset Avatar to Default Placeholder
-    document.getElementById('btn-reset-default-avatar')?.addEventListener('click', () => {
-      store.resetUserAvatar();
-      window.showToast?.('Avatar reset to default neutral placeholder.', 'info');
-      this.render(this.container);
-    });
-
-    // Persona Switcher (All 5 Intact Personas)
+    // Persona Switcher
     this.container.querySelectorAll('.persona-card-item').forEach(card => {
       card.addEventListener('click', (e) => {
         const pId = e.currentTarget.getAttribute('data-persona-id');
@@ -211,4 +149,5 @@ export class ComplianceSettingsView {
 }
 
 export const complianceSettingsView = new ComplianceSettingsView();
+
 

@@ -379,28 +379,34 @@ class AppController {
   }
 
   renderSidebarProfile() {
-    const active = store.getActiveProfile();
+    const currentP = store.getCurrentPersona();
+    const user = store.state.auth.user;
+
+    // Single source of truth: Selected Persona's avatar and metadata
+    const activeName = (user && !store.isGuest()) ? user.name : currentP.name;
+    const activePlan = (user && !store.isGuest()) ? (user.plan || 'Pro Member') : `${currentP.role} • ${currentP.plan}`;
+    const activeAvatar = currentP.avatar;
 
     const nameEl = document.getElementById('sidebar-user-name');
     const planEl = document.getElementById('sidebar-user-plan');
     const avatarEl = document.getElementById('sidebar-user-avatar');
     const authBtnHeader = document.getElementById('header-auth-btn');
 
-    if (nameEl) nameEl.textContent = active.name;
-    if (planEl) planEl.textContent = active.isRealUser ? active.plan : `${active.role} • ${active.plan}`;
+    if (nameEl) nameEl.textContent = activeName;
+    if (planEl) planEl.textContent = activePlan;
     if (avatarEl) {
-      avatarEl.src = active.avatar;
-      avatarEl.alt = active.name;
+      avatarEl.src = activeAvatar;
+      avatarEl.alt = activeName;
     }
 
     // Top-Right Header User Profile & Avatar Pill
     if (authBtnHeader) {
       authBtnHeader.innerHTML = `
-        <img id="header-user-avatar" src="${active.avatar}" alt="${active.name}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 6px; border: 1.5px solid var(--primary); display: inline-block;">
-        <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">${active.name.split(' ')[0]}</span>
-        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10B981; margin-left: 6px;" title="Online / Active Account"></span>
+        <img id="header-user-avatar" src="${activeAvatar}" alt="${activeName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 6px; border: 1.5px solid var(--primary); display: inline-block;">
+        <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">${activeName.split(' ')[0]}</span>
+        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10B981; margin-left: 6px;" title="Online / Active Persona"></span>
       `;
-      authBtnHeader.title = `Profile: ${active.name} (${active.role})`;
+      authBtnHeader.title = `Active Persona: ${activeName} (${currentP.role})`;
     }
 
     // Live Dashboard Welcome Hero Card Synchronization
@@ -411,20 +417,20 @@ class AppController {
     const dashWelcomePlan = document.getElementById('dash-welcome-plan');
 
     if (dashWelcomeAvatar) {
-      dashWelcomeAvatar.src = active.avatar;
-      dashWelcomeAvatar.alt = active.name;
+      dashWelcomeAvatar.src = activeAvatar;
+      dashWelcomeAvatar.alt = activeName;
     }
     if (dashWelcomeTitle) {
-      dashWelcomeTitle.textContent = `Welcome back, ${active.name}! 👋`;
+      dashWelcomeTitle.textContent = `Welcome back, ${activeName}! 👋`;
     }
     if (dashWelcomeBio) {
-      dashWelcomeBio.textContent = active.bio;
+      dashWelcomeBio.textContent = currentP.bio;
     }
     if (dashWelcomeRole) {
-      dashWelcomeRole.textContent = active.role;
+      dashWelcomeRole.textContent = currentP.role;
     }
     if (dashWelcomePlan) {
-      dashWelcomePlan.textContent = active.plan;
+      dashWelcomePlan.textContent = currentP.plan;
     }
   }
 
@@ -552,7 +558,9 @@ class AppController {
    */
   renderDashboardOverview(container) {
     const state = store.state;
-    const active = store.getActiveProfile();
+    const currentP = store.getCurrentPersona();
+    const activeName = (state.auth.user && !store.isGuest()) ? state.auth.user.name : currentP.name;
+    const activeAvatar = currentP.avatar;
     const currentJd = state.jobDescriptions[state.currentJdKey] || state.jobDescriptions.swe;
 
     container.innerHTML = `
@@ -561,7 +569,7 @@ class AppController {
         <div class="guest-mode-welcome-strip">
           <div style="display: flex; align-items: center; gap: 10px;">
             <span class="guest-badge-pill">👤 Persona Active</span>
-            <span>You are exploring CareerAI as <strong>${active.name}</strong> (${active.role}). Switch personas anytime in <a href="#" onclick="window.appController?.navigateTo('settings'); return false;" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Settings</a>!</span>
+            <span>You are exploring CareerAI as <strong>${currentP.name}</strong> (${currentP.role}). Switch personas anytime in <a href="#" onclick="window.appController?.navigateTo('settings'); return false;" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Settings</a>!</span>
           </div>
           <button class="action-pill-btn" onclick="window.openAuthModal('signup', 'Create a free account to save your progress:')" style="font-size: 0.78rem;">
             Create Free Account
@@ -587,14 +595,14 @@ class AppController {
       <!-- Welcome Banner Card -->
       <div class="welcome-hero-card" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
         <div style="display: flex; align-items: center; gap: 18px;">
-          <img src="${active.avatar}" alt="${active.name}" id="dash-welcome-avatar" class="welcome-avatar-img" style="width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 255, 255, 0.45); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); flex-shrink: 0;">
+          <img src="${activeAvatar}" alt="${activeName}" id="dash-welcome-avatar" class="welcome-avatar-img" style="width: 68px; height: 68px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 255, 255, 0.45); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); flex-shrink: 0;">
           <div class="welcome-content">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-              <span class="badge-role" id="dash-welcome-role" style="background: rgba(255, 255, 255, 0.22); color: white; font-size: 0.76rem; font-weight: 700; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.02em;">${active.role}</span>
-              <span id="dash-welcome-plan" style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 600;">${active.plan}</span>
+              <span class="badge-role" id="dash-welcome-role" style="background: rgba(255, 255, 255, 0.22); color: white; font-size: 0.76rem; font-weight: 700; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.02em;">${currentP.role}</span>
+              <span id="dash-welcome-plan" style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.9); font-weight: 600;">${currentP.plan}</span>
             </div>
-            <h2 id="dash-welcome-title" style="margin: 0 0 6px 0; font-size: 1.55rem; font-weight: 800;">Welcome back, ${active.name}! 👋</h2>
-            <p id="dash-welcome-bio" style="margin: 0; opacity: 0.92; font-size: 0.88rem; max-width: 580px; line-height: 1.45;">${active.bio}</p>
+            <h2 id="dash-welcome-title" style="margin: 0 0 6px 0; font-size: 1.55rem; font-weight: 800;">Welcome back, ${activeName}! 👋</h2>
+            <p id="dash-welcome-bio" style="margin: 0; opacity: 0.92; font-size: 0.88rem; max-width: 580px; line-height: 1.45;">${currentP.bio}</p>
             <div class="welcome-actions" style="margin-top: 14px;">
               <button class="btn-primary" id="btn-welcome-start-interview">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
