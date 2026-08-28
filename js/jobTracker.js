@@ -21,6 +21,7 @@ export class JobTrackerView {
     const appliedApps = apps.filter(a => a.stage === 'applied');
     const interviewingApps = apps.filter(a => a.stage === 'interviewing');
     const offerApps = apps.filter(a => a.stage === 'offer');
+    const activeApps = appliedApps.length + interviewingApps.length;
 
     container.innerHTML = `
       ${isGuest ? `
@@ -51,6 +52,13 @@ export class JobTrackerView {
         <button class="btn-primary" id="btn-add-application">
           + New Application
         </button>
+      </div>
+
+      <div class="job-tracker-summary" aria-label="Application summary">
+        <div><strong>${apps.length}</strong><span>Total tracked</span></div>
+        <div><strong>${activeApps}</strong><span>In progress</span></div>
+        <div><strong>${interviewingApps.length}</strong><span>Interviewing</span></div>
+        <div><strong>${offerApps.length}</strong><span>Offers</span></div>
       </div>
 
       <div class="kanban-board">
@@ -164,6 +172,18 @@ export class JobTrackerView {
             ${app.priorityLabel || 'Normal'}
           </span>
         </div>
+
+        ${!isDemo ? `
+          <label class="card-stage-control">
+            <span>Move to</span>
+            <select class="app-stage-select" data-app-id="${app.id}" aria-label="Move ${app.company} application">
+              <option value="wishlist" ${app.stage === 'wishlist' ? 'selected' : ''}>Wishlist</option>
+              <option value="applied" ${app.stage === 'applied' ? 'selected' : ''}>Applied</option>
+              <option value="interviewing" ${app.stage === 'interviewing' ? 'selected' : ''}>Interviewing</option>
+              <option value="offer" ${app.stage === 'offer' ? 'selected' : ''}>Offer</option>
+            </select>
+          </label>
+        ` : ''}
       </div>
     `;
   }
@@ -190,6 +210,16 @@ export class JobTrackerView {
           const stage = e.currentTarget.getAttribute('data-stage');
           this.openAddApplicationModal(stage);
         }
+      });
+    });
+
+    document.querySelectorAll('.app-stage-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        const appId = e.currentTarget.getAttribute('data-app-id');
+        const newStage = e.currentTarget.value;
+        store.moveApplication(appId, newStage);
+        window.showToast?.(`Application moved to ${newStage.toUpperCase()}!`, 'success');
+        this.render(this.container);
       });
     });
 

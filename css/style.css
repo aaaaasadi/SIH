@@ -1814,6 +1814,39 @@ body {
   margin-bottom: 24px;
 }
 
+.job-tracker-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: -8px 0 20px;
+}
+
+.job-tracker-summary > div {
+  background: white;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.job-tracker-summary strong,
+.job-tracker-summary span {
+  display: block;
+}
+
+.job-tracker-summary strong {
+  font-size: 1.25rem;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.job-tracker-summary span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
 .kanban-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1829,6 +1862,18 @@ body {
   min-height: 520px;
   display: flex;
   flex-direction: column;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.kanban-col[data-stage="wishlist"] { border-top: 3px solid var(--primary); }
+.kanban-col[data-stage="applied"] { border-top: 3px solid #D97706; }
+.kanban-col[data-stage="interviewing"] { border-top: 3px solid #2563EB; }
+.kanban-col[data-stage="offer"] { border-top: 3px solid #16A34A; }
+
+.kanban-col.drag-over {
+  background: #EEF2FF;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
 
 .kanban-col-header {
@@ -1871,6 +1916,96 @@ body {
   flex-direction: column;
   gap: 12px;
   flex: 1;
+  min-height: 120px;
+}
+
+.kanban-card {
+  background: white;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  animation: trackerCardIn 0.35s ease both;
+}
+
+.kanban-card:hover {
+  transform: translateY(-3px);
+  border-color: #C7D2FE;
+  box-shadow: var(--shadow-md);
+}
+
+.kanban-card.dragging {
+  opacity: 0.45;
+  transform: rotate(1deg) scale(0.98);
+  cursor: grabbing;
+}
+
+.company-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.company-logo-badge {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.job-role-title {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priority-tag-pill {
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.priority-tag-pill.primary { background: #EEF2FF; color: var(--primary); }
+.priority-tag-pill.danger { background: #FEF2F2; color: #DC2626; }
+
+.card-stage-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.app-stage-select {
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  font: inherit;
+  cursor: pointer;
+}
+
+@keyframes trackerCardIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .job-card {
@@ -2079,6 +2214,18 @@ body {
   }
   .metric-trio, .kanban-board {
     grid-template-columns: 1fr;
+  }
+  .job-tracker-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .job-tracker-header .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+  .job-tracker-summary {
+    grid-template-columns: repeat(2, 1fr);
   }
   .welcome-hero-card, .welcome-card {
     flex-direction: column-reverse;
