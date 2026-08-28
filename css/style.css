@@ -3557,4 +3557,318 @@ body {
   background: #F8FAFC;
 }
 
+/* ========================================================
+   CAREERAI VISUAL REFRESH
+   ======================================================== */
+:root {
+  --font-main: 'Plus Jakarta Sans', sans-serif;
+  --primary: #0f766e;
+  --primary-hover: #115e59;
+  --primary-light: #e6f5f2;
+  --primary-focus: rgba(15, 118, 110, 0.16);
+  --secondary: #0d9488;
+  --secondary-light: #f0fdfa;
+  --accent-purple: #f97316;
+  --accent-gradient: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+  --accent-gradient-subtle: linear-gradient(135deg, #eefaf8 0%, #fff7ed 100%);
+  --bg-page: #f6f8f5;
+  --bg-card: #ffffff;
+  --bg-subtle: #eef3ef;
+  --bg-sidebar: #fbfcfa;
+  --border-light: #dce5df;
+  --border-card: #e5ece7;
+  --border-focus: #99d5cc;
+  --text-main: #17231f;
+  --text-muted: #63736c;
+  --text-subtle: #91a19a;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-card: 0 8px 24px rgba(23, 35, 31, 0.055);
+}
+
+body {
+  background-color: var(--bg-page);
+  background-image: linear-gradient(rgba(15, 118, 110, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 118, 110, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.sidebar {
+  background: rgba(251, 252, 250, 0.96);
+  border-right-color: #d4e0d8;
+  padding-top: 28px;
+}
+
+.brand-icon-wrap {
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.22);
+}
+
+.brand-text h1,
+.tab-link.active,
+.nav-link.active,
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.nav-link {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 11px 14px;
+}
+
+.nav-link.active {
+  background: #e7f4f1;
+  border-color: #c6e4de;
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.upgrade-btn,
+.btn-optimize-all {
+  background: var(--accent-gradient);
+  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.2);
+}
+
+.top-header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: #dce5df;
+  backdrop-filter: blur(14px);
+}
+
+.search-box input {
+  background: #f0f4f1;
+  border-color: #e2ebe5;
+}
+
+.search-box input:focus {
+  border-color: var(--secondary);
+}
+
+.tab-link.active::after {
+  height: 3px;
+  background: var(--accent-purple);
+}
+
+.action-pill-btn,
+.header-btn {
+  box-shadow: none;
+}
+
+.action-pill-btn:hover {
+  border-color: #99d5cc;
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.content-body {
+  padding-top: 34px;
+}
+
+.card,
+.metric-card,
+.welcome-hero-card,
+.welcome-card,
+.resume-editor-pane,
+.ai-optimization-sidebar,
+.report-header-banner {
+  border-color: var(--border-card);
+  box-shadow: var(--shadow-card);
+}
+
+.welcome-hero-card,
+.welcome-card,
+.lobby-hero-card {
+  background: linear-gradient(120deg, #ffffff 0%, #f1faf7 68%, #fff8ef 100%);
+  border-color: #d5e6df;
+}
+
+.welcome-content h1,
+.welcome-content h2 {
+  letter-spacing: -0.035em;
+}
+
+.btn-primary {
+  background: var(--primary);
+  box-shadow: 0 5px 12px rgba(15, 118, 110, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.metric-card,
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.metric-card:hover,
+.card:hover {
+  border-color: #c6e4de;
+  box-shadow: 0 12px 28px rgba(23, 35, 31, 0.08);
+}
+
+.metric-icon-box,
+.prep-calendar-icon {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.progress-bar-fill.primary,
+.gauge-fill {
+  background: var(--primary);
+  stroke: var(--primary);
+}
+
+.lobby-hero-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.lobby-hero-card::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -54px;
+  top: -78px;
+  border: 1px solid rgba(249, 115, 22, 0.22);
+  border-radius: 50%;
+  box-shadow: 0 0 0 18px rgba(249, 115, 22, 0.05), 0 0 0 36px rgba(249, 115, 22, 0.035);
+  pointer-events: none;
+}
+
+.guest-mode-welcome-strip {
+  background: #fff8ef;
+  border: 1px solid #f3d8bd;
+  border-radius: 10px;
+  color: #7c4a27;
+  box-shadow: 0 4px 14px rgba(124, 74, 39, 0.05);
+}
+
+.dash-quick-actions-bar {
+  align-items: center;
+}
+
+.dash-quick-actions-bar .action-pill-btn {
+  background: #ffffff;
+}
+
+.welcome-hero-card .badge-role {
+  background: var(--primary-light) !important;
+  color: var(--primary) !important;
+}
+
+.welcome-hero-card #dash-welcome-plan {
+  color: var(--text-muted) !important;
+}
+
+.welcome-hero-card .welcome-avatar-img {
+  border-color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(23, 35, 31, 0.14) !important;
+}
+
+.dash-quick-actions-bar .btn-primary,
+.welcome-actions .btn-primary {
+  background: var(--primary);
+}
+
+.ats-alert-card {
+  border-color: #cce6d9;
+  background: #fbfffc;
+}
+
+.ats-badge-count {
+  background: #e8f6ee;
+  color: #23734d;
+}
+
+@media (max-width: 600px) {
+  .guest-mode-welcome-strip {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dash-quick-actions-bar > * {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .welcome-hero-card .gauge-container {
+    margin: 0 auto;
+  }
+}
+
+.interview-nav-tabs {
+  border-bottom-color: #dce5df;
+}
+
+.interview-nav-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+@media (max-width: 900px) {
+  .header-left {
+    gap: 14px;
+  }
+
+  .header-nav-tabs {
+    gap: 12px;
+  }
+
+  .content-body {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-header {
+    padding: 0 18px;
+  }
+
+  .search-box {
+    width: min(42vw, 220px);
+  }
+
+  .header-nav-tabs {
+    display: none;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .header-right .action-pill-btn:first-child {
+    display: none;
+  }
+
+  .content-body {
+    padding: 24px 16px 36px;
+  }
+
+  .lobby-hero-card,
+  .welcome-hero-card,
+  .welcome-card {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    width: 100%;
+  }
+
+  .header-left {
+    flex: 1;
+  }
+
+  .header-right .action-pill-btn {
+    padding: 7px 10px;
+    font-size: 0.75rem;
+  }
+}
+
 
