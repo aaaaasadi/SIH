@@ -9,6 +9,9 @@ import { aiEngine } from './aiEngine.js';
 const STORAGE_KEY = 'career_ai_state_v2';
 const GUEST_STORAGE_KEY = 'career_ai_guest_session_v2';
 
+// Generic Neutral Placeholder Avatar for all brand-new real user signups (zero gender/name logic)
+export const DEFAULT_USER_AVATAR = `data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Ccircle cx='64' cy='64' r='64' fill='%23E2E8F0'/%3E%3Cpath d='M64 28a24 24 0 100 48 24 24 0 000-48zm0 56c-26.7 0-48 16.3-48 36v8h96v-8c0-19.7-21.3-36-48-36z' fill='%2364748B'/%3E%3C/svg%3E`;
+
 // Pre-seeded Personas conforming to PRD Section 4
 export const PERSONAS = {
   priya: {
@@ -969,18 +972,42 @@ class StateStore {
     return PERSONAS[this.state.currentPersona] || PERSONAS.priya;
   }
 
+  getActiveProfile() {
+    const isRealUser = this.state.auth?.isAuthenticated && !this.state.auth?.isGuest && !this.state.auth?.isPersonaMode;
+    if (isRealUser && this.state.auth.user) {
+      return {
+        name: this.state.auth.user.name,
+        plan: this.state.auth.user.plan || 'Pro Member',
+        role: 'Pro Candidate',
+        avatar: this.state.auth.user.avatar || DEFAULT_USER_AVATAR,
+        bio: 'Your personalized AI career coach & analytics profile are active.',
+        isRealUser: true
+      };
+    }
+    const p = PERSONAS[this.state.currentPersona] || PERSONAS.priya;
+    return {
+      name: p.name,
+      plan: p.plan,
+      role: p.role,
+      avatar: p.avatar,
+      bio: p.bio,
+      isRealUser: false
+    };
+  }
+
   login(email, password = '') {
-    const name = email.split('@')[0].replace('.', ' ') || 'Priya Sharma';
-    const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+    const rawName = email.split('@')[0].replace('.', ' ') || 'User';
+    const capitalized = rawName.charAt(0).toUpperCase() + rawName.slice(1);
     
     this.state.auth = {
       isAuthenticated: true,
       isGuest: false,
+      isPersonaMode: false,
       user: {
         email,
         name: capitalized,
         plan: 'Pro Edition',
-        avatar: PERSONAS.priya.avatar
+        avatar: DEFAULT_USER_AVATAR
       },
       guestQuota: { resumeAnalysesCount: 0, interviewSessionsCount: 0, lastResetTimestamp: Date.now() }
     };
@@ -997,15 +1024,19 @@ class StateStore {
   }
 
   signup(email, password = '', name = '') {
-    const displayName = name || email.split('@')[0] || 'Priya Sharma';
+    const rawName = email.split('@')[0].replace('.', ' ') || 'User';
+    const fallbackName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+    const displayName = (name && name.trim()) ? name.trim() : fallbackName;
+
     this.state.auth = {
       isAuthenticated: true,
       isGuest: false,
+      isPersonaMode: false,
       user: {
         email,
         name: displayName,
         plan: 'Pro Edition',
-        avatar: PERSONAS.priya.avatar
+        avatar: DEFAULT_USER_AVATAR
       },
       guestQuota: { resumeAnalysesCount: 0, interviewSessionsCount: 0, lastResetTimestamp: Date.now() }
     };
@@ -1024,8 +1055,26 @@ class StateStore {
     this.saveState();
   }
 
+  updateUserAvatar(newAvatarUrl) {
+    if (this.state.auth?.user) {
+      this.state.auth.user.avatar = newAvatarUrl;
+      this.state.auth.isPersonaMode = false;
+      this.saveState();
+      this.notify();
+    }
+  }
+
+  resetUserAvatar() {
+    if (this.state.auth?.user) {
+      this.state.auth.user.avatar = DEFAULT_USER_AVATAR;
+      this.state.auth.isPersonaMode = false;
+      this.saveState();
+      this.notify();
+    }
+  }
+
   loginWithGoogle() {
-    this.signup('priya.sharma@gmail.com', '', 'Priya Sharma');
+    this.signup('user@example.com', '', 'Google Member');
   }
 
   continueAsGuest() {
@@ -1236,6 +1285,9 @@ class StateStore {
   setPersona(personaId) {
     if (PERSONAS[personaId]) {
       this.state.currentPersona = personaId;
+      if (this.state.auth) {
+        this.state.auth.isPersonaMode = true;
+      }
       const p = PERSONAS[personaId];
 
       // Update user auth profile in session if present
