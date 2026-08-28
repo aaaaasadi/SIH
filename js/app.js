@@ -359,6 +359,7 @@ class AppController {
     const setup = () => {
       this.contentBody = document.getElementById('main-content-body');
       this.bindNavigation();
+      this.bindGlobalInteractions();
       this.renderSidebarProfile();
       this.renderCurrentView();
 
@@ -516,7 +517,9 @@ class AppController {
 
     // Clear content body
     if (!this.contentBody) return;
+    this.contentBody.classList.remove('view-transition-enter');
     this.contentBody.innerHTML = '';
+    requestAnimationFrame(() => this.contentBody?.classList.add('view-transition-enter'));
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -551,6 +554,24 @@ class AppController {
         this.renderDashboardOverview(this.contentBody);
         break;
     }
+  }
+
+  bindGlobalInteractions() {
+    document.addEventListener('pointerdown', (event) => {
+      const button = event.target.closest('button');
+      if (!button || button.disabled || button.classList.contains('btn-close-modal')) return;
+
+      button.classList.add('is-pressed');
+      window.setTimeout(() => button.classList.remove('is-pressed'), 180);
+
+      const rect = button.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'button-ripple';
+      ripple.style.left = `${event.clientX - rect.left}px`;
+      ripple.style.top = `${event.clientY - rect.top}px`;
+      button.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+    });
   }
 
   /**
