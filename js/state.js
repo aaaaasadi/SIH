@@ -965,6 +965,10 @@ class StateStore {
     return !this.state.auth.isAuthenticated || this.state.auth.isGuest;
   }
 
+  getCurrentPersona() {
+    return PERSONAS[this.state.currentPersona] || PERSONAS.priya;
+  }
+
   login(email, password = '') {
     const name = email.split('@')[0].replace('.', ' ') || 'Priya Sharma';
     const capitalized = name.charAt(0).toUpperCase() + name.slice(1);

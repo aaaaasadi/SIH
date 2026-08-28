@@ -487,28 +487,22 @@ export class ResumeLabView {
           Select a pre-seeded candidate profile to explore the ATS optimization and mock interview coaching features instantly:
         </p>
 
-        <div class="sample-resumes-grid">
-          <div class="sample-card btn-select-sample" data-sample="priya">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <img src="${PERSONAS.priya.avatar}" class="sample-avatar" alt="Priya Sharma">
-              <div>
-                <strong style="font-size: 0.95rem; color: #0F172A;">Priya Sharma</strong>
-                <div style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">Software Engineer (Backend)</div>
+        <div class="sample-resumes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+          ${Object.keys(PERSONAS).map(k => {
+            const p = PERSONAS[k];
+            return `
+              <div class="sample-card btn-select-sample" data-sample="${p.id}" style="padding: 12px; border: 1.5px solid #E2E8F0; border-radius: var(--radius-md); background: white; cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                  <img src="${p.avatar}" class="sample-avatar" alt="${p.name}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #CBD5E1;">
+                  <div>
+                    <strong style="font-size: 0.88rem; color: #0F172A; display: block;">${p.name}</strong>
+                    <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">${p.role}</div>
+                  </div>
+                </div>
+                <div style="font-size: 0.74rem; color: #64748B; line-height: 1.35;">${p.bio}</div>
               </div>
-            </div>
-            <div style="font-size: 0.78rem; color: #64748B;">5 years experience in Python, Java, AWS microservices, and high-performance API design (ATS: 94%).</div>
-          </div>
-
-          <div class="sample-card btn-select-sample" data-sample="aarav">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <img src="${PERSONAS.aarav.avatar}" class="sample-avatar" alt="Aarav Sharma">
-              <div>
-                <strong style="font-size: 0.95rem; color: #0F172A;">Aarav Sharma</strong>
-                <div style="font-size: 0.75rem; color: var(--primary); font-weight: 600;">Final-Year Student (CS)</div>
-              </div>
-            </div>
-            <div style="font-size: 0.78rem; color: #64748B;">Entry-level software engineer seeking high pass-through Taleo/Workday ATS screening.</div>
-          </div>
+            `;
+          }).join('')}
         </div>
       </div>
 
@@ -589,9 +583,9 @@ export class ResumeLabView {
     modalOverlay.querySelectorAll('.btn-select-sample').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const sampleKey = e.currentTarget.getAttribute('data-sample');
-        store.loadSampleResume(sampleKey);
+        store.setPersona(sampleKey);
         modalOverlay.classList.remove('active');
-        window.showToast?.(`Loaded ${PERSONAS[sampleKey]?.name || sampleKey}'s sample resume!`, 'success');
+        window.showToast?.(`Loaded ${PERSONAS[sampleKey]?.name || sampleKey}'s sample resume & profile!`, 'success');
         this.render(this.container);
       });
     });
