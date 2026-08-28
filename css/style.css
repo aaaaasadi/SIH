@@ -204,29 +204,6 @@ body {
   border-top: 1px solid var(--border-card);
 }
 
-.upgrade-btn {
-  background: var(--accent-gradient);
-  color: white;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.88rem;
-  text-align: center;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.upgrade-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
-}
-
 .user-profile-badge {
   display: flex;
   align-items: center;
@@ -4160,7 +4137,6 @@ body {
   box-shadow: inset 3px 0 0 var(--primary);
 }
 
-.upgrade-btn,
 .btn-optimize-all {
   background: var(--accent-gradient);
   box-shadow: 0 6px 14px rgba(15, 118, 110, 0.2);

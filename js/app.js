@@ -479,11 +479,6 @@ class AppController {
       this.navigateTo('dashboard');
     });
 
-    // Upgrade to Pro Button
-    document.getElementById('btn-upgrade-pro')?.addEventListener('click', () => {
-      window.showToast?.('🚀 You are on the Pro Coach Tier with unlimited AI resume tailoring & mock interviews!', 'success');
-    });
-
     // Help Center Link
     document.getElementById('link-help')?.addEventListener('click', (e) => {
       e.preventDefault();
