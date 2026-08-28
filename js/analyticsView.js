@@ -14,6 +14,11 @@ export class AnalyticsView {
     this.container = container;
     const isGuest = store.isGuest();
     const sessions = isGuest ? DEFAULT_SESSIONS : (store.state.sessions || []);
+    const resumeHistory = isGuest ? [] : (store.state.resumeScoreHistory || []);
+    const latestSession = sessions[0];
+    const latestResume = resumeHistory[resumeHistory.length - 1];
+    const readinessScore = isGuest ? 82 : latestSession?.overall_score;
+    const hasPersonalData = Boolean(latestSession || latestResume);
 
     container.innerHTML = `
       ${isGuest ? `
@@ -60,18 +65,18 @@ export class AnalyticsView {
                   <circle class="gauge-bg" cx="50" cy="50" r="40"></circle>
                   <circle class="gauge-fill" cx="50" cy="50" r="40"
                     stroke-dasharray="251.2"
-                    stroke-dashoffset="${251.2 - (251.2 * 82) / 100}">
+                    stroke-dashoffset="${readinessScore ? 251.2 - (251.2 * readinessScore) / 100 : 251.2}">
                   </circle>
                 </svg>
                 <div class="gauge-text">
-                  <div class="gauge-value">82<span>%</span></div>
+                  ${readinessScore ? `<div class="gauge-value">${readinessScore}<span>%</span></div>` : '<div class="gauge-value">—</div>'}
                 </div>
               </div>
 
               <!-- Growth Sparkline Box -->
               <div class="trend-spark-box">
                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                <span>+12% over last 5 sessions</span>
+                <span>${isGuest ? '+12% demo trend' : (latestSession ? 'Based on your latest saved interview' : 'Complete an interview to start tracking')}</span>
               </div>
             </div>
           </div>
@@ -83,14 +88,16 @@ export class AnalyticsView {
               ${isGuest ? `<span class="demo-chip-tag">Sample Profile</span>` : ''}
             </div>
 
+            ${!isGuest && !hasPersonalData ? '<div class="empty-progress-state">Complete a resume analysis or interview to build your personal skill progress.</div>' : ''}
+
             <!-- Behavioral -->
             <div class="skill-bar-row">
               <div class="skill-bar-header">
                 <span>Behavioral (STAR Method)</span>
-                <span>88%</span>
+                <span>${isGuest ? '88%' : (latestSession?.communication_score || '—')}</span>
               </div>
               <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill primary" style="width: 88%;"></div>
+                <div class="progress-bar-fill primary" style="width: ${isGuest ? 88 : (latestSession?.communication_score || 0)}%;"></div>
               </div>
             </div>
 
@@ -98,21 +105,21 @@ export class AnalyticsView {
             <div class="skill-bar-row">
               <div class="skill-bar-header">
                 <span>Technical Communication</span>
-                <span>75%</span>
+                <span>${isGuest ? '75%' : (latestSession?.technical_score || latestResume?.ats_score || '—')}</span>
               </div>
               <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill primary" style="width: 75%;"></div>
+                <div class="progress-bar-fill primary" style="width: ${isGuest ? 75 : (latestSession?.technical_score || latestResume?.ats_score || 0)}%;"></div>
               </div>
             </div>
 
-            <!-- Confidence & Tone -->
+            <!-- Resume Keyword Alignment -->
             <div class="skill-bar-row">
               <div class="skill-bar-header">
-                <span>Confidence & Tone</span>
-                <span>62%</span>
+                <span>Resume Keyword Alignment</span>
+                <span>${isGuest ? '62%' : (latestResume?.keyword_alignment || '—')}</span>
               </div>
               <div class="progress-bar-wrap" style="height: 8px;">
-                <div class="progress-bar-fill warning" style="width: 62%;"></div>
+                <div class="progress-bar-fill warning" style="width: ${isGuest ? 62 : (latestResume?.keyword_alignment || 0)}%;"></div>
               </div>
             </div>
           </div>
@@ -152,7 +159,7 @@ export class AnalyticsView {
             </div>
 
             <div class="session-list">
-              ${sessions.map(s => `
+              ${sessions.length ? sessions.map(s => `
                 <div class="session-list-item">
                   <div>
                     <div class="session-name">${s.role}</div>
@@ -160,7 +167,7 @@ export class AnalyticsView {
                   </div>
                   <span class="session-score-pill">${s.score}%</span>
                 </div>
-              `).join('')}
+              `).join('') : '<div class="empty-progress-state">No saved interview sessions yet. Complete a voice interview to see your scores here.</div>'}
             </div>
 
             <button class="btn-view-all" id="btn-view-all-history">View All History</button>

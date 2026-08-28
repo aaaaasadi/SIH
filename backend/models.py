@@ -155,6 +155,15 @@ class InterviewAnswerEvaluationRequest(BaseModel):
     time_taken_sec: Optional[int] = 0
     resume_text: Optional[str] = None
     job_description: Optional[str] = None
+    speech_analysis: Optional[Dict[str, Any]] = None
+
+class SpeechAnalysis(BaseModel):
+    wpm: int = 0
+    filler_count: int = 0
+    pause_count: int = 0
+    duration_seconds: int = 0
+    clarity: int = 0
+    feedback: str = ""
 
 class InterviewAnswerEvaluationResponse(BaseModel):
     success: bool = True
@@ -165,6 +174,7 @@ class InterviewAnswerEvaluationResponse(BaseModel):
     ai_recommendation: str
     model_answer: str  # Framed clearly as "one possible strong coaching approach"
     evaluation_mode: str = "ai_engine"  # "google_gemini", "openai", or "rubric_fallback"
+    speech_analysis: Optional[SpeechAnalysis] = None
 
 class PracticePlanItem(BaseModel):
     priority: int
@@ -189,6 +199,7 @@ class InterviewCompletedAnswerItem(BaseModel):
     what_could_be_improved: str
     ai_recommendation: str
     model_answer: str
+    speech_analysis: Optional[SpeechAnalysis] = None
 
 class InterviewFinalReportRequest(BaseModel):
     session_id: str

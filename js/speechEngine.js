@@ -42,7 +42,8 @@ export class SpeechAndVideoEngine {
           }
         }
 
-        const fullText = (this.currentTranscript + ' ' + finalTranscript + interimTranscript).trim();
+        this.currentTranscript = (this.currentTranscript + ' ' + finalTranscript).trim();
+        const fullText = (this.currentTranscript + ' ' + interimTranscript).trim();
         if (this.onTranscriptUpdate) {
           this.onTranscriptUpdate(fullText, event.results[event.results.length - 1]?.isFinal);
         }

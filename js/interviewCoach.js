@@ -5,7 +5,7 @@
  * 1. Interview Setup Screen: Target Role, Type (Technical/HR/Mixed), Difficulty, Num Questions, Resume & JD toggles, Zero-prerequisite Generic mode.
  * 2. Personalized AI Question Generation: Tailored to Resume + JD + Role + Difficulty with real backend AI / fallback.
  * 3. Interactive Interview Screen: Progress Stepper, AI Interviewer Card, Dual Answer (🎤 Voice recording with Web Speech API & ⌨️ Text answer).
- * 4. Multi-Criteria Answer Evaluation: 6 dimensions (Relevance, Technical Accuracy, Communication, Completeness, Problem Solving, Confidence) + Dynamic Overall Score.
+ * 4. Multi-Criteria Answer Evaluation: 6 dimensions (Relevance, Technical Accuracy, Communication, Completeness, Problem Solving, Ownership) + Dynamic Overall Score.
  * 5. Actionable AI Feedback: "What you did well", "What could be improved", "AI Recommendation" (STAR method).
  * 6. Model Answer Coaching: "Show Better Answer" demonstrating one possible strong coaching approach.
  * 7. Adaptive Flow: Question difficulty adjusts based on previous answers.
@@ -56,8 +56,14 @@ export class InterviewCoachView {
       waveformInterval: null,
       isPaused: false,
       showModelAnswer: false,
-      finalReport: null
+      finalReport: null,
+      recordingStartedAt: null,
+      lastSpeechAt: null,
+      pauseCount: 0,
+      speechAnalysis: null
     };
+
+    this.lastSpokenQuestionId = null;
 
     this.simulatedVideoUrl = store.getCurrentPersona()?.avatar || PERSONAS.priya.avatar;
   }
@@ -667,6 +673,9 @@ export class InterviewCoachView {
             <div style="font-size: 1.08rem; font-weight: 700; color: #0F172A; line-height: 1.45;">
               "${q.question}"
             </div>
+            <button class="action-pill-btn speak-question-btn" id="btn-speak-question" style="margin-top: 12px; font-size: 0.76rem; padding: 6px 10px;">
+              🔊 Hear question
+            </button>
           </div>
 
           <!-- 2. Dual Answer Mode (Voice / Text) if NOT evaluated yet -->
@@ -752,7 +761,7 @@ export class InterviewCoachView {
                 </div>
               </div>
 
-              <!-- 6-Dimensional Score Grid (Relevance, Technical, Comm, Completeness, Problem Solving, Confidence) -->
+              <!-- 6-Dimensional Score Grid (Relevance, Technical, Comm, Completeness, Problem Solving, Ownership) -->
               <div class="eval-six-grid">
                 <div class="eval-metric-chip">
                   <span>Relevance:</span>
@@ -775,10 +784,24 @@ export class InterviewCoachView {
                   <strong>${evalData.scores_breakdown.problem_solving}/10</strong>
                 </div>
                 <div class="eval-metric-chip">
-                  <span>Confidence:</span>
+                  <span>Ownership / Directness:</span>
                   <strong>${evalData.scores_breakdown.confidence}/10</strong>
                 </div>
               </div>
+
+              ${this.session.speechAnalysis ? `
+                <div class="speech-analysis-panel">
+                  <div class="speech-analysis-title">Speech analysis <span>Measured from your transcript and recording</span></div>
+                  <div class="speech-analysis-grid">
+                    <div><strong>${this.session.speechAnalysis.wpm}</strong><span>Words / min</span></div>
+                    <div><strong>${this.session.speechAnalysis.filler_count}</strong><span>Filler words</span></div>
+                    <div><strong>${this.session.speechAnalysis.pause_count}</strong><span>Long pauses</span></div>
+                    <div><strong>${this.formatTime(this.session.speechAnalysis.duration_seconds)}</strong><span>Answer duration</span></div>
+                    <div><strong>${this.session.speechAnalysis.clarity}/100</strong><span>Clarity indicator</span></div>
+                  </div>
+                  <div class="speech-analysis-feedback">${this.session.speechAnalysis.feedback}</div>
+                </div>
+              ` : ''}
 
               <!-- What you did well -->
               <div class="feedback-box-success">
@@ -828,6 +851,7 @@ export class InterviewCoachView {
     this.startTimer();
     this.startWaveformAnimation();
     this.attachActiveRoomEvents();
+    this.speakQuestionIfNeeded(q);
   }
 
   attachActiveRoomEvents() {
@@ -879,6 +903,10 @@ export class InterviewCoachView {
     // Voice Recording Toggle (Start/Stop)
     document.getElementById('btn-toggle-recording')?.addEventListener('click', () => {
       this.toggleVoiceRecording();
+    });
+
+    document.getElementById('btn-speak-question')?.addEventListener('click', () => {
+      this.speakQuestionIfNeeded(this.session.currentQuestion, true);
     });
 
     // Re-record Voice
@@ -955,6 +983,10 @@ export class InterviewCoachView {
       // Start Recording
       this.session.isRecording = true;
       this.session.recordingSeconds = 0;
+      this.session.recordingStartedAt = Date.now();
+      this.session.lastSpeechAt = null;
+      this.session.pauseCount = 0;
+      this.session.speechAnalysis = null;
       if (this.session.recordingInterval) clearInterval(this.session.recordingInterval);
 
       this.session.recordingInterval = setInterval(() => {
@@ -963,6 +995,13 @@ export class InterviewCoachView {
 
       speechEngine.startListening((text, isFinal) => {
         this.session.voiceTranscript = text;
+        if (isFinal) {
+          const now = Date.now();
+          if (this.session.lastSpeechAt && now - this.session.lastSpeechAt >= 1500) {
+            this.session.pauseCount++;
+          }
+          this.session.lastSpeechAt = now;
+        }
         const box = this.container?.querySelector('.voice-record-panel span:first-child');
         if (box) {
           this.render(this.container);
@@ -976,6 +1015,7 @@ export class InterviewCoachView {
       speechEngine.stopListening();
       this.session.isRecording = false;
       if (this.session.recordingInterval) clearInterval(this.session.recordingInterval);
+      this.session.speechAnalysis = this.analyzeSpeech(this.session.voiceTranscript, this.session.recordingStartedAt);
       window.showToast?.('Recording captured. Click Submit Answer to evaluate.', 'success');
       this.render(this.container);
     }
@@ -987,6 +1027,7 @@ export class InterviewCoachView {
       speechEngine.stopListening();
       this.session.isRecording = false;
       if (this.session.recordingInterval) clearInterval(this.session.recordingInterval);
+      this.session.speechAnalysis = this.analyzeSpeech(this.session.voiceTranscript, this.session.recordingStartedAt);
     }
 
     // Always fetch latest text from DOM if text area exists
@@ -1027,7 +1068,8 @@ export class InterviewCoachView {
       answer_text: answerText,
       target_role: this.config.targetRole,
       difficulty: this.config.difficulty,
-      time_taken_sec: this.session.recordingSeconds || 45
+      time_taken_sec: this.session.speechAnalysis?.duration_seconds || this.session.recordingSeconds || 45,
+      speech_analysis: this.session.speechAnalysis
     };
 
     console.log('[Interview Coach] Submitting answer evaluation payload:', {
@@ -1063,7 +1105,8 @@ export class InterviewCoachView {
         what_could_be_improved: evalResult.what_could_be_improved,
         ai_recommendation: evalResult.ai_recommendation,
         model_answer: evalResult.model_answer,
-        evaluation_mode: evalResult.evaluation_mode
+        evaluation_mode: evalResult.evaluation_mode,
+        speech_analysis: this.session.speechAnalysis
       });
 
       window.showToast?.(`Answer Evaluated! Score: ${evalResult.overall_score}/100`, 'success');
@@ -1161,6 +1204,42 @@ export class InterviewCoachView {
     };
   }
 
+  speakQuestionIfNeeded(question, force = false) {
+    if (!question?.question || !('speechSynthesis' in window)) return;
+    if (!force && this.lastSpokenQuestionId === question.id) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(question.question);
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+    this.lastSpokenQuestionId = question.id;
+  }
+
+  analyzeSpeech(transcript, startedAt) {
+    const text = (transcript || '').trim();
+    const words = text ? text.split(/\s+/).filter(Boolean) : [];
+    const durationSeconds = Math.max(1, Math.round(((Date.now() - (startedAt || Date.now())) / 1000)));
+    const fillerPattern = /\b(um+|uh+|like|actually|basically|you know|sort of|kind of)\b/gi;
+    const fillerCount = text.match(fillerPattern)?.length || 0;
+    const wpm = Math.round(words.length / (durationSeconds / 60));
+    const pauseCount = this.session.pauseCount || 0;
+    const clarity = Math.max(0, Math.min(100, Math.round(100 - (fillerCount * 5) - (pauseCount * 4) - (wpm > 175 ? 10 : 0) - (wpm < 80 && words.length > 10 ? 8 : 0))));
+    let feedback = 'Your pacing and wording were easy to follow.';
+    if (fillerCount > 2) feedback = 'Replace filler phrases with a short pause, then continue with your next point.';
+    else if (pauseCount > 2) feedback = 'Use a brief outline before recording to reduce long pauses between ideas.';
+    else if (wpm > 175) feedback = 'Slow down slightly and pause at the end of each idea so key details land clearly.';
+    else if (wpm > 0 && wpm < 80 && words.length > 10) feedback = 'Add a little more detail and connect each point with a complete sentence.';
+    return {
+      wpm,
+      filler_count: fillerCount,
+      pause_count: pauseCount,
+      duration_seconds: durationSeconds,
+      clarity,
+      feedback
+    };
+  }
+
   async handleProceedNextQuestion() {
     const nextIdx = this.session.currentQuestionIndex + 1;
 
@@ -1245,6 +1324,7 @@ export class InterviewCoachView {
           interview_type: this.config.interviewType,
           difficulty: this.config.difficulty,
           answers: this.session.answers,
+          resume_text: this.buildResumeText(),
           is_guest: isGuest
         })
       });
@@ -1315,6 +1395,16 @@ export class InterviewCoachView {
   renderFinalReport(container) {
     const report = this.session.finalReport;
     const isGuest = store.isGuest();
+    const previousSessions = (store.state.sessions || []).filter(session => session.id !== report.session_id);
+    const previousSession = previousSessions[0];
+    const speechAnswers = (report.detailed_answers || []).map(answer => answer.speech_analysis).filter(Boolean);
+    const speechSummary = speechAnswers.length ? {
+      wpm: Math.round(speechAnswers.reduce((sum, item) => sum + item.wpm, 0) / speechAnswers.length),
+      filler_count: speechAnswers.reduce((sum, item) => sum + item.filler_count, 0),
+      pause_count: speechAnswers.reduce((sum, item) => sum + item.pause_count, 0),
+      clarity: Math.round(speechAnswers.reduce((sum, item) => sum + item.clarity, 0) / speechAnswers.length)
+    } : null;
+    const roadmap = this.buildRoadmap(report);
     const baseScore = report.overall_score || 70;
     const perf = report.performance_breakdown || {
       technical_knowledge: Math.min(98, Math.max(20, baseScore + 2)),
@@ -1413,14 +1503,6 @@ export class InterviewCoachView {
               <div class="progress-bar-wrap"><div class="progress-bar-fill warning" style="width: ${perf.problem_solving}%;"></div></div>
             </div>
 
-            <!-- Confidence -->
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px;">
-                <span>Confidence</span>
-                <strong style="color: #4F46E5;">${perf.confidence}/100</strong>
-              </div>
-              <div class="progress-bar-wrap"><div class="progress-bar-fill primary" style="width: ${perf.confidence}%;"></div></div>
-            </div>
           </div>
 
           <!-- Right: Strengths & Areas to Improve -->
@@ -1454,6 +1536,46 @@ export class InterviewCoachView {
                 </div>
               `).join('')}
             </div>
+          </div>
+        </div>
+
+        <div class="interview-results-grid">
+          <div class="card progress-comparison-card" style="padding: 22px;">
+            <div class="report-section-title">Progress over time</div>
+            ${previousSession ? `
+              <div class="score-comparison-row">
+                <div><span>Previous interview</span><strong>${previousSession.overall_score}/100</strong></div>
+                <div class="score-arrow">→</div>
+                <div><span>Current interview</span><strong>${report.overall_score}/100</strong></div>
+              </div>
+              <div class="progress-delta ${report.overall_score >= previousSession.overall_score ? 'positive' : 'negative'}">
+                ${report.overall_score >= previousSession.overall_score ? '+' : ''}${report.overall_score - previousSession.overall_score} points from the previous saved session
+              </div>
+            ` : '<div class="empty-progress-state">No previous interview score yet. Complete another session to see improvement over time.</div>'}
+          </div>
+
+          <div class="card speech-summary-card" style="padding: 22px;">
+            <div class="report-section-title">Speech analysis</div>
+            ${speechSummary ? `
+              <div class="speech-summary-grid">
+                <div><strong>${speechSummary.wpm}</strong><span>Average WPM</span></div>
+                <div><strong>${speechSummary.filler_count}</strong><span>Filler words</span></div>
+                <div><strong>${speechSummary.pause_count}</strong><span>Long pauses</span></div>
+                <div><strong>${speechSummary.clarity}/100</strong><span>Clarity indicator</span></div>
+              </div>
+            ` : '<div class="empty-progress-state">Speech metrics will appear when answers are recorded with the microphone.</div>'}
+          </div>
+        </div>
+
+        <div class="card roadmap-card" style="padding: 22px; margin-bottom: 24px;">
+          <div class="report-section-title">4-week improvement roadmap</div>
+          <div class="roadmap-grid">
+            ${roadmap.map((item, index) => `
+              <div class="roadmap-week">
+                <div class="roadmap-week-number">${index + 1}</div>
+                <div><strong>${item.title}</strong><span>${item.detail}</span></div>
+              </div>
+            `).join('')}
           </div>
         </div>
 
@@ -1492,6 +1614,25 @@ export class InterviewCoachView {
     `;
 
     this.attachReportEvents(container);
+  }
+
+  buildResumeText() {
+    const resume = store.state.resume;
+    if (!resume) return '';
+    return `${resume.candidate?.name || ''}\n${(resume.sections || []).map(section => `${section.title}: ${section.content || ''} ${(section.items || []).map(item => (item.bullets || []).map(bullet => bullet.text).join(' ')).join(' ')}`).join('\n')}`;
+  }
+
+  buildRoadmap(report) {
+    const analysis = store.state.latestAnalysis;
+    const missingSkills = analysis?.missing_skills || analysis?.missing_keywords || [];
+    const technicalGap = missingSkills.length ? `Practice ${missingSkills.slice(0, 3).join(', ')} from your resume analysis.` : 'Review the technical topics that scored lowest in this interview.';
+    const communicationGap = report.areas_to_improve?.find(area => /STAR|communicat|filler|metric|outcome/i.test(area)) || 'Turn each answer into a concise Situation, Task, Action, Result story.';
+    return [
+      { title: 'Resume foundation', detail: missingSkills.length ? `Close the top gap: ${missingSkills[0]}.` : 'Keep your resume skills and target role aligned.' },
+      { title: 'Technical skills', detail: technicalGap },
+      { title: 'Interview practice', detail: communicationGap },
+      { title: 'Final preparation', detail: 'Repeat a five-question voice session and review your WPM, pauses, fillers, and scores.' }
+    ];
   }
 
   attachReportEvents(container) {

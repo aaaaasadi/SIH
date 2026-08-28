@@ -882,6 +882,7 @@ class StateStore {
         interview_readiness: 88
       },
       latestAnalysis: null,
+      resumeScoreHistory: [],
       currentPersona: 'priya',
       personas: PERSONAS,
       resume: workingResume,
@@ -985,10 +986,6 @@ class StateStore {
       guestQuota: { resumeAnalysesCount: 0, interviewSessionsCount: 0, lastResetTimestamp: Date.now() }
     };
     
-    // Seed standard sessions if user has none
-    if (this.state.sessions.length === 0) {
-      this.state.sessions = DEFAULT_SESSIONS;
-    }
     if (this.state.applications.length === 0) {
       this.state.applications = JSON.parse(JSON.stringify(DEMO_JOB_APPLICATIONS.map(a => ({ ...a, isDemo: false }))));
     }
@@ -1013,9 +1010,6 @@ class StateStore {
     // FR-4.10: Session Handoff - in-progress resume and transcript are preserved
     this.state.resume.candidate.name = displayName;
     this.state.resume.candidate.email = email;
-    if (this.state.sessions.length === 0) {
-      this.state.sessions = DEFAULT_SESSIONS;
-    }
     if (this.state.applications.length === 0) {
       this.state.applications = JSON.parse(JSON.stringify(DEMO_JOB_APPLICATIONS.map(a => ({ ...a, isDemo: false }))));
     }
@@ -1170,6 +1164,13 @@ class StateStore {
   applyAnalysisResult(result) {
     this.pushUndoSnapshot('Backend AI Analysis');
     this.state.latestAnalysis = result;
+    this.state.resumeScoreHistory = this.state.resumeScoreHistory || [];
+    this.state.resumeScoreHistory.push({
+      score: result.resume_score,
+      ats_score: result.ats_score,
+      keyword_alignment: result.keyword_alignment,
+      date: new Date().toISOString()
+    });
     this.state.dashboardScores = {
       resume_score: result.resume_score,
       ats_score: result.ats_score,

@@ -10,7 +10,7 @@ from .models import (
     InterviewAnswerEvaluationRequest, InterviewAnswerEvaluationResponse,
     InterviewEvaluationBreakdown, PracticePlanItem,
     InterviewPerformanceBreakdown, InterviewFinalReportRequest,
-    InterviewFinalReportResponse, InterviewCompletedAnswerItem
+    InterviewFinalReportResponse, InterviewCompletedAnswerItem, SpeechAnalysis
 )
 
 # Standard taxonomy of technical and behavioral themes
@@ -147,7 +147,7 @@ class InterviewEngine:
         ans_text = (req.answer_text or "").strip()
         print(f"[INTERVIEW ENGINE] Evaluating answer for {req.target_role} ({req.category}) - Length: {len(ans_text)} chars: '{ans_text[:60]}...'")
         if not ans_text:
-            return InterviewAnswerEvaluationResponse(
+            result = InterviewAnswerEvaluationResponse(
                 success=True,
                 overall_score=15,
                 scores_breakdown=InterviewEvaluationBreakdown(
@@ -164,18 +164,26 @@ class InterviewEngine:
                 model_answer=self._get_fallback_model_answer(req.question, req.target_role),
                 evaluation_mode="heuristic_rubric_engine"
             )
+            result.speech_analysis = self._speech_analysis_model(req.speech_analysis)
+            return result
 
         # Try LLM evaluation first
         if self.gemini_key or self.openai_key:
             try:
                 llm_eval = self._evaluate_with_llm(req)
                 if llm_eval:
+                    llm_eval.speech_analysis = self._speech_analysis_model(req.speech_analysis)
                     return llm_eval
             except Exception as e:
                 print(f"[WARN] LLM answer evaluation failed: {e}. Falling back to rubric engine.")
 
         # Heuristic Rubric-Based Evaluation (Deterministic & Realistic)
-        return self._evaluate_with_heuristic_rubric(req)
+        result = self._evaluate_with_heuristic_rubric(req)
+        result.speech_analysis = self._speech_analysis_model(req.speech_analysis)
+        return result
+
+    def _speech_analysis_model(self, data: Optional[Dict[str, Any]]) -> Optional[SpeechAnalysis]:
+        return SpeechAnalysis(**data) if data else None
 
     def generate_next_adaptive_question(self, req: InterviewNextQuestionRequest) -> InterviewQuestion:
         """
