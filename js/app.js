@@ -410,7 +410,7 @@ class AppController {
         <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">${activeName.split(' ')[0]}</span>
         <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10B981; margin-left: 6px;" title="Online / Active Persona"></span>
       `;
-      authBtnHeader.title = `Active Persona: ${activeName} (${currentP.role})`;
+      authBtnHeader.title = `Signed in as ${activeName}`;
     }
 
     // Live Dashboard Welcome Hero Card Synchronization
@@ -460,9 +460,9 @@ class AppController {
     // User Profile click in sidebar
     document.getElementById('user-profile-widget')?.addEventListener('click', () => {
       if (store.isGuest()) {
-        window.openAuthModal('login', 'Sign in to save your sessions and customize settings:');
+        window.openAuthModal('login', 'Sign in to save your sessions and personalize your coaching:');
       } else {
-        this.navigateTo('settings');
+        window.showToast?.('Your profile is already active for resume and interview coaching.', 'info');
       }
     });
 
@@ -471,7 +471,7 @@ class AppController {
       if (store.isGuest()) {
         window.openAuthModal('login');
       } else {
-        this.navigateTo('settings');
+        window.showToast?.('Your profile is already active for resume and interview coaching.', 'info');
       }
     });
 
@@ -547,9 +547,6 @@ class AppController {
       case 'roadmap':
       case 'my-roadmap':
         roadmapView.render(this.contentBody);
-        break;
-      case 'settings':
-        complianceSettingsView.render(this.contentBody);
         break;
       default:
         this.renderDashboardOverview(this.contentBody);
