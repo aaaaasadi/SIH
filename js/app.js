@@ -417,10 +417,14 @@ class AppController {
         authBtnHeader.title = `Logged in as ${activeName}`;
       } else {
         authBtnHeader.innerHTML = `
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-          <span style="font-weight: 700; font-size: 0.82rem; color: var(--primary);">Sign In / Register</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="display: inline-flex; align-items: center; justify-content: center; width: 8px; height: 8px; border-radius: 50%; background: #94A3B8; box-shadow: 0 0 0 2px rgba(148,163,184,0.18);" title="Guest mode"></span>
+            <span style="font-weight: 700; font-size: 0.8rem; color: #475569;">Guest</span>
+            <span style="font-size: 0.7rem; color: #64748B;">•</span>
+            <span style="font-weight: 600; font-size: 0.72rem; color: var(--primary);">Sign In</span>
+          </div>
         `;
-        authBtnHeader.title = 'Sign in or register';
+        authBtnHeader.title = 'Guest mode — sign in to personalize your profile';
       }
     }
 
