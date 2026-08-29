@@ -18,20 +18,15 @@
 
 ## 📌 Executive Summary
 
-The **AI-Powered Resume & Interview Coach (CareerAI)** is an enterprise-grade career preparation platform designed to help job seekers, final-year university students, and career switchers craft ATS-optimized resumes and practice role-tailored mock interviews. 
+The **AI-Powered Resume & Interview Coach (CareerAI)** is an enterprise-grade career preparation platform designed to help job seekers craft ATS-optimized resumes and practice role-tailored mock interviews with one unified AI coach.
 
 By unifying resume optimization and interview coaching around a shared **Target Job Description (JD)** in a single closed loop, CareerAI eliminates the guesswork of job hunting with actionable, NLP-driven feedback.
 
 ---
 
-## 🎯 Target User Personas
+## 🎯 Unified AI Coach
 
-| Persona | Role & Stage | Key Need Addressed |
-| :--- | :--- | :--- |
-| **Priya Sharma** | Software Engineer (Backend) | ATS-optimized single-column resume with quantified bullets and system design mock prep (ATS 94%+). |
-| **Aarav** | Final-Year Student (CS) | First-time resume formatting that passes Taleo/Workday ATS screening. |
-| **Rohan** | High-Volume Applicant | Fast, repeatable 1-click resume tailoring and keyword recalibration per job posting. |
-| **Meera** | Interview-Anxious Candidate | Live mock simulator with camera auto-framing, real-time STAR tracking, and filler word detection. |
+CareerAI operates as one intelligent interview and coaching system for every user. It combines resume review, target-role matching, mock interview practice, and coaching feedback under a single adaptive AI experience without persona switching.
 
 ---
 
@@ -121,7 +116,7 @@ graph TD
 | **FR-2.7** | Retry question and compare scores across attempts | Should-have | ✅ Implemented |
 | **FR-3.1** | Store historical resume & interview scores | Must-have | ✅ Implemented |
 | **FR-3.2** | Display progress trends & skill breakdown | Should-have | ✅ Implemented |
-| **FR-4.1** | Multi-persona testing & profiles | Must-have | ✅ Implemented |
+| **FR-4.1** | Unified interview and coaching experience | Must-have | ✅ Implemented |
 | **FR-4.2** | GDPR/CCPA data export and deletion | Must-have | ✅ Implemented |
 
 ---

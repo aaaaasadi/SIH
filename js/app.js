@@ -385,9 +385,9 @@ class AppController {
     const currentP = store.getCurrentPersona();
     const user = store.state.auth.user;
 
-    // Single source of truth: Selected Persona's avatar and metadata
+    // Unified AI interviewer profile
     const activeName = (user && !store.isGuest()) ? user.name : currentP.name;
-    const activePlan = (user && !store.isGuest()) ? (user.plan || 'Pro Member') : `${currentP.role} • ${currentP.plan}`;
+    const activePlan = (user && !store.isGuest()) ? (user.plan || 'Pro Member') : `${currentP.role}`;
     const activeAvatar = currentP.avatar;
 
     const nameEl = document.getElementById('sidebar-user-name');
@@ -409,7 +409,7 @@ class AppController {
         <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">${activeName.split(' ')[0]}</span>
         <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10B981; margin-left: 6px;" title="Online / Active Persona"></span>
       `;
-      authBtnHeader.title = `Signed in as ${activeName}`;
+      authBtnHeader.title = `CareerAI • Adaptive AI Career Coach`;
     }
 
     // Live Dashboard Welcome Hero Card Synchronization
@@ -882,7 +882,7 @@ class AppController {
                   <label><span>Target Job Role</span><input type="text" name="targetRole" value="${builderState.form.career.targetRole || ''}" /></label>
                   <label><span>Current Career Stage</span>
                     <select name="currentCareerStage">
-                      ${['Student','Fresher','Working Professional','Career Switcher'].map(option => `<option value="${option}" ${builderState.form.career.currentCareerStage === option ? 'selected' : ''}>${option}</option>`).join('')}
+                      ${['Student','Fresher','Working Professional'].map(option => `<option value="${option}" ${builderState.form.career.currentCareerStage === option ? 'selected' : ''}>${option}</option>`).join('')}
                     </select>
                   </label>
                   <label style="grid-column: 1 / -1;"><span>Career Objective</span><textarea name="careerObjective" rows="3">${builderState.form.career.careerObjective || ''}</textarea></label>

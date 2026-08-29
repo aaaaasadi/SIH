@@ -65,13 +65,13 @@ export class InterviewCoachView {
 
     this.lastSpokenQuestionId = null;
 
-    this.simulatedVideoUrl = store.getCurrentPersona()?.avatar || PERSONAS.priya.avatar;
+    this.simulatedVideoUrl = store.getCurrentPersona()?.avatar || PERSONAS.careerai.avatar;
   }
 
   render(container) {
     this.container = container;
-    // Always sync simulated video stream avatar to active persona
-    this.simulatedVideoUrl = store.getCurrentPersona()?.avatar || PERSONAS.priya.avatar;
+    // Always sync simulated video stream avatar to the active AI coach
+    this.simulatedVideoUrl = store.getCurrentPersona()?.avatar || PERSONAS.careerai.avatar;
 
     // 0. Check Guest Quota before launching (PRD Section 8 & 9: 1 interview session per 24h)
     if (store.isGuest()) {
