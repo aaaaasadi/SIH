@@ -3,7 +3,8 @@
 # 🚀 CareerAI — AI-Powered Resume & Interview Coach
 ### *Intelligent Career-Preparation Platform (PCE SW PS 9 • Version 2.0)*
 
-[![Status](https://img.shields.io/badge/Status-Production--Ready-brightgreen?style=for-the-badge&logo=github)](https://github.com)
+[![Repository](https://img.shields.io/badge/Repository-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/aaaaasadi/SIH.git)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Local%20App-4F46E5?style=for-the-badge)](http://localhost:8080)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)

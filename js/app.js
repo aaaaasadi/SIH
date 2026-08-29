@@ -542,7 +542,6 @@ class AppController {
         break;
       case 'analytics':
       case 'performance':
-      case 'market-trends':
         analyticsView.render(this.contentBody);
         break;
       case 'roadmap':
