@@ -695,6 +695,12 @@ export class AIEngine {
   getRankedSuggestions(resume, resolvedIds = [], jobDescription = null) {
     const list = [];
     const existingRewrites = [];
+    const targetRole = jobDescription?.roleTag || jobDescription?.title || resume.targetRole || 'Software Engineer';
+    const jdKeywords = Array.from(new Set([
+      ...(jobDescription?.keywordsFound || []),
+      ...(jobDescription?.keywordsMissing || []),
+      ...(jobDescription?.skills || [])
+    ])).filter(Boolean);
 
     resume.sections?.forEach(sec => {
       const sectionName = sec.id || sec.title || 'experience';
@@ -732,10 +738,18 @@ export class AIEngine {
                     company,
                     role,
                     surroundingBullets: surrounding,
-                    targetRole: resume.targetRole || 'Software Engineer',
+                    targetRole,
                     existingRewrites
                   });
                 }
+
+                const keywordGap = jdKeywords.find(keyword =>
+                  !resume.sections?.some(section => JSON.stringify(section).toLowerCase().includes(keyword.toLowerCase())) &&
+                  /[a-z]/i.test(keyword)
+                );
+                const roleSpecificReason = keywordGap
+                  ? `Prioritize ${keywordGap} to better align this bullet with the ${targetRole} role.`
+                  : rewriteData.reason;
 
                 existingRewrites.push(rewriteData.rewrite);
 
@@ -748,7 +762,7 @@ export class AIEngine {
                   category: hasMetrics ? 'Action Verb Polish' : (isPassive ? 'Passive Phrasing' : 'Impact & Clarity'),
                   type: rewriteData.type,
                   quote: origText,
-                  explanation: rewriteData.reason,
+                  explanation: roleSpecificReason,
                   rewrite: rewriteData.rewrite,
                   impactScore: b.impactScore || (isPassive ? 95 : 85)
                 });

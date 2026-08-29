@@ -40,7 +40,7 @@ export class ResumeLabView {
       qualitativeSummary: latestAnalysis.weaknesses?.[0] || 'Resume analyzed with AI backend.'
     } : aiEngine.calculateMatchScore(resume, currentJd);
 
-    const rankedSuggestions = aiEngine.getRankedSuggestions(resume, state.resolvedSuggestions || []);
+    const rankedSuggestions = aiEngine.getRankedSuggestions(resume, state.resolvedSuggestions || [], currentJd);
     const resolvedSuggestions = this.getResolvedSuggestions(resume, state.resolvedSuggestions || []);
 
     container.innerHTML = `
@@ -959,7 +959,12 @@ export class ResumeLabView {
 
     // Export PDF
     document.getElementById('btn-export-pdf')?.addEventListener('click', () => {
+      const beforePrint = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
       window.print();
+      setTimeout(() => {
+        document.body.style.overflow = beforePrint || '';
+      }, 250);
     });
 
     // Primary: Apply AI Rewrite Button

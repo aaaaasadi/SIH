@@ -1022,6 +1022,68 @@ body {
   top: calc(var(--header-h) + 24px);
 }
 
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  .resume-lab-helper-strip,
+  .editor-toolbar,
+  .ai-optimization-sidebar,
+  .btn-primary,
+  .btn-icon-subtle,
+  .tool-btn,
+  .tool-btn-primary,
+  .tool-btn-secondary,
+  .action-pill-btn,
+  .version-select-wrap,
+  .header,
+  .sidebar,
+  .floating-assistant,
+  #careerai-assistant-root,
+  #btn-open-upload-modal,
+  #btn-helper-upload,
+  #btn-open-jd-picker,
+  #btn-trigger-undo,
+  .resume-lab-container > *:not(.resume-editor-pane) {
+    display: none !important;
+  }
+
+  .resume-lab-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .resume-editor-pane {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .resume-paper {
+    min-height: auto !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .resume-section,
+  .resume-header,
+  .experience-block {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
+
 .ai-panel-header {
   display: flex;
   align-items: center;
