@@ -428,6 +428,184 @@ body {
   padding: 24px;
 }
 
+.resume-generator-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.resume-generator-shell .welcome-hero-card {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 28%, #4f46e5 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 24px 48px rgba(79, 70, 229, 0.26);
+  position: relative;
+  overflow: hidden;
+}
+
+.resume-generator-shell .welcome-hero-card::before {
+  content: "";
+  position: absolute;
+  inset: auto -30px -60px auto;
+  width: 220px;
+  height: 220px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.resume-generator-shell .resume-generator-layout {
+  align-items: start;
+}
+
+.resume-generator-shell .card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.resume-generator-shell .resume-builder-layout > .card {
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.06);
+}
+
+.resume-generator-shell .resume-generator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.resume-generator-shell .resume-generator-section {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.resume-generator-shell .section-card-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 14px;
+}
+
+.resume-generator-shell .resume-generator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.resume-generator-shell .resume-generator-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.resume-generator-shell .resume-generator-grid label[style*="grid-column: 1 / -1"] {
+  grid-column: 1 / -1;
+}
+
+.resume-generator-shell input,
+.resume-generator-shell textarea,
+.resume-generator-shell select {
+  width: 100%;
+  border: 1px solid #dfe7f3;
+  border-radius: 12px;
+  background: white;
+  color: var(--text-main);
+  padding: 11px 12px;
+  font: inherit;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+}
+
+.resume-generator-shell input:focus,
+.resume-generator-shell textarea:focus,
+.resume-generator-shell select:focus {
+  outline: none;
+  border-color: rgba(79, 70, 229, 0.45);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+}
+
+.resume-generator-shell textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.resume-generator-shell .resume-generator-entry {
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.resume-generator-shell .resume-generator-entry:last-child {
+  margin-bottom: 0;
+}
+
+.resume-generator-shell .resume-generator-entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.resume-generator-shell .btn-add-entry,
+.resume-generator-shell .btn-remove-entry,
+.resume-generator-shell .resume-generator-actions .action-pill-btn,
+.resume-generator-shell .resume-generator-actions .btn-primary {
+  transition: all 0.2s ease;
+}
+
+.resume-generator-shell .btn-add-entry {
+  margin-top: 12px;
+  background: #EEF2FF;
+  border-color: rgba(79, 70, 229, 0.18);
+  color: var(--primary);
+}
+
+.resume-generator-shell .btn-remove-entry {
+  background: #FEF2F2;
+  border-color: rgba(239, 68, 68, 0.16);
+  color: var(--danger);
+}
+
+.resume-generator-shell .resume-generator-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.resume-generator-shell .resume-generator-actions .btn-primary {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  box-shadow: 0 14px 24px rgba(79, 70, 229, 0.22);
+}
+
+.resume-generator-shell .resume-preview {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.resume-generator-shell .metric-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04);
+}
+
+.resume-generator-shell .action-pill-btn {
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-weight: 700;
+}
+
 /* ========================================================
    VIEW 1: OVERVIEW / DASHBOARD (Screenshot 2)
    ======================================================== */
