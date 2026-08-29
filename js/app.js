@@ -404,12 +404,19 @@ class AppController {
 
     // Top-Right Header User Profile & Avatar Pill
     if (authBtnHeader) {
-      authBtnHeader.innerHTML = `
-        <img id="header-user-avatar" src="${activeAvatar}" alt="${activeName}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; margin-right: 6px; border: 1.5px solid var(--primary); display: inline-block;">
-        <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">${activeName.split(' ')[0]}</span>
-        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10B981; margin-left: 6px;" title="Online / Active Persona"></span>
-      `;
-      authBtnHeader.title = `CareerAI • Adaptive AI Career Coach`;
+      if (user && !store.isGuest()) {
+        authBtnHeader.innerHTML = `
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+          <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">Logout</span>
+        `;
+        authBtnHeader.title = 'Log out of CareerAI';
+      } else {
+        authBtnHeader.innerHTML = `
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+          <span style="font-weight: 700; font-size: 0.82rem; color: var(--primary);">Sign In / Register</span>
+        `;
+        authBtnHeader.title = 'Sign in or register';
+      }
     }
 
     // Live Dashboard Welcome Hero Card Synchronization
@@ -470,7 +477,10 @@ class AppController {
       if (store.isGuest()) {
         window.openAuthModal('login');
       } else {
-        window.showToast?.('Your profile is already active for resume and interview coaching.', 'info');
+        store.logout();
+        window.showToast?.('Logged out successfully. You are back in guest mode.', 'info');
+        appController.renderSidebarProfile();
+        appController.renderCurrentView();
       }
     });
 
