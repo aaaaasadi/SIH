@@ -477,10 +477,42 @@ class AppController {
       if (store.isGuest()) {
         window.openAuthModal('login');
       } else {
-        store.logout();
-        window.showToast?.('Logged out successfully. You are back in guest mode.', 'info');
-        appController.renderSidebarProfile();
-        appController.renderCurrentView();
+        const modalOverlay = document.getElementById('global-modal-overlay');
+        const modalContent = document.getElementById('global-modal-content');
+        if (!modalOverlay || !modalContent) {
+          store.logout();
+          window.showToast?.('Logged out successfully. You are back in guest mode.', 'info');
+          appController.renderSidebarProfile();
+          appController.renderCurrentView();
+          return;
+        }
+
+        modalContent.innerHTML = `
+          <div class="modal-header">
+            <div>
+              <h3 style="margin: 0;">Log out?</h3>
+            </div>
+            <button class="btn-close-modal" id="btn-close-logout-confirm">&times;</button>
+          </div>
+          <div style="padding: 12px 0 18px; color: #475569; line-height: 1.5;">
+            You will be signed out and returned to guest mode. Your current work will remain in the browser for this session until you refresh or start a new one.
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="action-pill-btn" id="btn-logout-cancel" style="padding: 9px 16px;">Cancel</button>
+            <button class="btn-primary" id="btn-logout-confirm" style="padding: 9px 18px;">Log Out</button>
+          </div>
+        `;
+        modalOverlay.classList.add('active');
+
+        document.getElementById('btn-close-logout-confirm')?.addEventListener('click', () => modalOverlay.classList.remove('active'));
+        document.getElementById('btn-logout-cancel')?.addEventListener('click', () => modalOverlay.classList.remove('active'));
+        document.getElementById('btn-logout-confirm')?.addEventListener('click', () => {
+          modalOverlay.classList.remove('active');
+          store.logout();
+          window.showToast?.('Logged out successfully. You are back in guest mode.', 'info');
+          appController.renderSidebarProfile();
+          appController.renderCurrentView();
+        });
       }
     });
 
