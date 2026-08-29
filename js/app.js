@@ -140,12 +140,12 @@ window.openAuthModal = function(initialTab = 'login', notice = '') {
         <div class="auth-form-fields">
           <div id="signup-name-field" style="display: ${initialTab === 'signup' ? 'block' : 'none'}; margin-bottom: 10px;">
             <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Full Name</label>
-            <input type="text" id="auth-inp-name" placeholder="e.g. Priya Sharma" class="field-input">
+            <input type="text" id="auth-inp-name" placeholder="e.g. Your Name" class="field-input">
           </div>
 
           <div style="margin-bottom: 10px;">
             <label style="font-size: 0.78rem; font-weight: 700; color: #475569; display: block; margin-bottom: 4px;">Email Address</label>
-            <input type="email" id="auth-inp-email" placeholder="name@example.com" value="${store.state.resume.candidate?.email || 'priya.sharma@email.com'}" class="field-input" required>
+            <input type="email" id="auth-inp-email" placeholder="name@example.com" value="${store.state.resume.candidate?.email || 'you@example.com'}" class="field-input" required>
           </div>
 
           <div style="margin-bottom: 12px;">

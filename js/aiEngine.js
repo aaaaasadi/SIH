@@ -72,7 +72,7 @@ export class AIEngine {
 
     const lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
     const result = {
-      candidate: { name: 'Priya Sharma', email: '', phone: '', location: '', linkedin: '' },
+      candidate: { name: 'Your Name', email: '', phone: '', location: '', linkedin: '' },
       summary: '',
       experience: [],
       skills: '',
@@ -126,7 +126,7 @@ export class AIEngine {
           result.candidate.phone = line.match(/(?:\(\+\d{1,3}\)|\+\d{1,3})?[-.\s]?\(?\d{3,5}\)?[-.\s]?\d{3,5}[-.\s]?\d{4,5}/)?.[0] || line;
         } else if (line.toLowerCase().includes('linkedin.com')) {
           result.candidate.linkedin = line;
-        } else if (!result.candidate.name || result.candidate.name === 'Priya Sharma') {
+        } else if (!result.candidate.name || result.candidate.name === 'Your Name') {
           // Accept only clean names (no symbols like \, ^, ~, ], %, @)
           const cleanLine = line.replace(/^(?:Name|Candidate Name|Full Name):\s*/i, '').trim();
           if (cleanLine.length < 40 && !cleanLine.includes('|') && !/[\\^~%@\[\]\*\=\+;]/.test(cleanLine)) {

@@ -103,7 +103,7 @@ class CareerAiAssistant {
 
     if (question === 'resume' || lowerQuestion.includes('resume')) {
       if (view !== 'resume-builder') return 'Open Resume Coach from the sidebar to upload or review your resume. I can then help interpret its ATS match and improvement areas.';
-      if (!analysis && score == null) return 'No resume analysis is available yet. Upload a resume or choose a sample profile in Resume Coach to generate one.';
+      if (!analysis && score == null) return 'No resume analysis is available yet. Upload or paste your own resume in Resume Coach to generate one.';
       const weakness = analysis?.weaknesses?.[0];
       return `Your available resume score is ${score != null ? `${score}/100` : 'not available'}. ${weakness ? `A current improvement area is: ${weakness}` : 'Review the weaknesses and keyword gaps shown in the analysis panel, then prioritize the highest-impact items.'}`;
     }

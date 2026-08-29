@@ -28,119 +28,41 @@ export const PERSONAS = {
   careerai: CAREERAI_PROFILE
 };
 
-// Initial Sample Resume (Priya Sharma - FR-1.11 - ATS-Optimized 94%)
+// The app does not ship with demo candidate identities. It starts from a clean blank profile.
 export const DEFAULT_RESUME = {
-  id: 'res-priya-01',
-  title: 'Software Engineer — Infosys Technologies',
-  targetRole: 'Software Engineer',
-  matchScore: 94,
+  id: 'res-user-blank',
+  title: 'My Resume (Draft)',
+  targetRole: 'Target Role',
+  matchScore: 50,
   lastSaved: 'Just now',
   candidate: {
-    name: 'Priya Sharma',
-    email: 'priya.sharma@email.com',
-    phone: '(+91) 98765-43210',
-    location: 'Bengaluru, India',
-    linkedin: 'linkedin.com/in/priyasharma',
-    github: 'github.com/priyasharma'
+    name: 'Your Name',
+    email: 'you@example.com',
+    phone: '(555) 000-0000',
+    location: 'City, Country',
+    linkedin: 'linkedin.com/in/yourprofile',
+    github: 'github.com/yourprofile'
   },
   sections: [
     {
       id: 'summary',
       title: 'Professional Summary',
-      content: 'Software Engineer with 5 years of experience in backend development, cloud infrastructure, and API design. Skilled in Python, Java, and AWS, with a proven record of improving system performance, reducing latency, and delivering scalable microservices. Strong background in Agile development, CI/CD pipelines, and cross-functional collaboration.'
-    },
-    {
-      id: 'skills',
-      title: 'Skills',
-      content: 'Programming Languages: Python, Java, JavaScript, SQL\nFrameworks and Libraries: Django, Spring Boot, React, Node.js\nCloud Platforms: AWS (EC2, S3, Lambda, RDS), Google Cloud Platform, Microsoft Azure\nDatabases: MySQL, PostgreSQL, MongoDB, Redis\nDevOps and Tools: Docker, Kubernetes, Jenkins, Git, Terraform, CI/CD\nOther: REST API Design, Microservices Architecture, Agile/Scrum, Unit Testing, System Design'
+      content: 'Results-driven professional with a strong focus on delivering measurable business outcomes, solving complex problems, and collaborating effectively across teams.'
     },
     {
       id: 'experience',
       title: 'Professional Experience',
       items: [
         {
-          id: 'exp-1',
-          role: 'Software Engineer II',
-          company: 'Infosys Technologies',
-          location: 'Bengaluru, India',
-          dates: 'June 2021 - Present',
+          id: 'exp-user-1',
+          role: 'Your Role',
+          company: 'Company Name',
+          location: 'Location',
+          dates: 'Year - Present',
           bullets: [
             {
-              id: 'b-1',
-              text: 'Developed and maintained RESTful APIs using Python and Django, supporting over 50,000 daily active users.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-2',
-              text: 'Reduced average API response time by 35 percent by optimizing database queries and implementing Redis caching.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-3',
-              text: 'Led migration of monolithic application to microservices architecture on AWS, improving deployment frequency by 40 percent.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-4',
-              text: 'Implemented automated CI/CD pipelines using Jenkins and Docker, reducing deployment time from 2 hours to 15 minutes.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-5',
-              text: 'Collaborated with a cross-functional team of 8 engineers in an Agile Scrum environment to deliver features on a two-week sprint cycle.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-6',
-              text: 'Mentored 3 junior engineers on best practices in code review, unit testing, and system design.',
-              hasSuggestion: false
-            }
-          ]
-        },
-        {
-          id: 'exp-2',
-          role: 'Software Engineer',
-          company: 'Wipro Limited',
-          location: 'Pune, India',
-          dates: 'July 2019 - May 2021',
-          bullets: [
-            {
-              id: 'b-7',
-              text: 'Built backend services in Java and Spring Boot for an e-commerce order management system processing 10,000 orders per day.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-8',
-              text: 'Designed and implemented a MySQL database schema, improving query performance by 25 percent.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-9',
-              text: 'Wrote unit and integration tests using JUnit, increasing code coverage from 60 percent to 90 percent.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-10',
-              text: 'Participated in daily stand-ups, sprint planning, and retrospectives as part of an Agile development team.',
-              hasSuggestion: false
-            }
-          ]
-        },
-        {
-          id: 'exp-3',
-          role: 'Software Development Intern',
-          company: 'Tata Consultancy Services',
-          location: 'Mumbai, India',
-          dates: 'January 2019 - June 2019',
-          bullets: [
-            {
-              id: 'b-11',
-              text: 'Assisted in developing internal tools using Python for automating data validation, saving the team 5 hours per week.',
-              hasSuggestion: false
-            },
-            {
-              id: 'b-12',
-              text: 'Contributed to front-end development using React and JavaScript for an internal reporting dashboard.',
+              id: 'b-user-1',
+              text: 'Led or contributed to impactful work using measurable results and clear business outcomes.',
               hasSuggestion: false
             }
           ]
@@ -148,19 +70,14 @@ export const DEFAULT_RESUME = {
       ]
     },
     {
+      id: 'skills',
+      title: 'Skills',
+      content: 'Communication, Problem Solving, Collaboration, Leadership, Domain Tools, Data Analysis'
+    },
+    {
       id: 'education',
       title: 'Education',
-      content: 'Bachelor of Technology in Computer Science and Engineering\nVisvesvaraya Technological University, Belagavi, India | Graduated May 2019 | CGPA: 8.7/10.0'
-    },
-    {
-      id: 'certifications',
-      title: 'Certifications',
-      content: 'AWS Certified Solutions Architect - Associate (2022)\nCertified Kubernetes Application Developer, CKAD (2021)\nPython Institute PCEP - Certified Entry-Level Python Programmer (2020)'
-    },
-    {
-      id: 'projects',
-      title: 'Projects',
-      content: 'Real-Time Chat Application — Built a scalable chat application using Node.js, Socket.io, and MongoDB, supporting 1,000 concurrent users with message delivery under 200 milliseconds.\n\nPersonal Finance Tracker — Developed a full-stack web application using Django and React for expense tracking and budget analysis, used by over 200 registered users.'
+      content: 'Degree / Program — Institution (Year)'
     }
   ]
 };
@@ -228,203 +145,8 @@ export const BLANK_RESUME_TEMPLATE = {
   ]
 };
 
-// Sample Resumes Directory (FR-1.11)
-export const SAMPLE_RESUMES = {
-  priya: DEFAULT_RESUME,
-  aarav: {
-    id: 'res-aarav-01',
-    title: 'Junior Software Engineer — Aarav Sharma',
-    targetRole: 'Software Engineer',
-    matchScore: 72,
-    lastSaved: 'Just now',
-    candidate: {
-      name: 'Aarav Sharma',
-      email: 'aarav.sharma@cs.edu',
-      phone: '(415) 890-1234',
-      location: 'San Jose, CA',
-      linkedin: 'linkedin.com/in/aaravsharma'
-    },
-    sections: [
-      {
-        id: 'summary',
-        title: 'Professional Summary',
-        content: 'Motivated Computer Science graduate with strong foundation in distributed systems, full-stack web development, and algorithms. Built 3 full-stack applications with React, Node.js, and PostgreSQL.'
-      },
-      {
-        id: 'experience',
-        title: 'Experience & Projects',
-        items: [
-          {
-            id: 'exp-a1',
-            role: 'Software Engineering Intern',
-            company: 'NextGen Cloud Labs',
-            location: 'San Jose, CA',
-            dates: 'Summer 2025',
-            bullets: [
-              {
-                id: 'b-a1',
-                text: 'Helped build API endpoints for data analytics dashboard.',
-                hasSuggestion: true,
-                suggestionType: 'verb',
-                suggestionTitle: 'Stronger Verbs',
-                impactScore: 90,
-                suggestionDesc: 'Replace passive "Helped build" with active accomplishment language.',
-                suggestedRewrite: 'Engineered scalable RESTful API endpoints in Node.js and Express to streamline data delivery for the analytics dashboard.'
-              },
-              {
-                id: 'b-a2',
-                text: 'Wrote unit and integration tests using Jest and Cypress.',
-                hasSuggestion: true,
-                suggestionType: 'verb',
-                suggestionTitle: 'Active Delivery',
-                impactScore: 85,
-                suggestionDesc: 'Emphasize testing rigor and CI/CD quality assurance.',
-                suggestedRewrite: 'Authored comprehensive unit and integration test suites using Jest and Cypress to ensure high code quality and prevent regressions.'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'skills',
-        title: 'Skills & Technologies',
-        content: 'JavaScript, TypeScript, React, Node.js, Python, PostgreSQL, Git, Docker, REST APIs, Jest'
-      },
-      {
-        id: 'education',
-        title: 'Education',
-        content: 'B.S. in Computer Science — San Jose State University (Expected May 2026, GPA: 3.82)'
-      }
-    ]
-  },
-  rohan: {
-    id: 'res-rohan-01',
-    title: 'Full Stack Engineer — Rohan Verma',
-    targetRole: 'Full Stack Engineer',
-    matchScore: 85,
-    lastSaved: 'Just now',
-    candidate: {
-      name: 'Rohan Verma',
-      email: 'rohan.verma@email.com',
-      phone: '(+91) 98765-88990',
-      location: 'Hyderabad, India',
-      linkedin: 'linkedin.com/in/rohanverma'
-    },
-    sections: [
-      {
-        id: 'summary',
-        title: 'Professional Summary',
-        content: 'Full Stack Engineer with 4 years of experience building high-throughput web applications with React, Node.js, TypeScript, and AWS cloud infrastructure. Experienced in rapid product iteration and microservices.'
-      },
-      {
-        id: 'experience',
-        title: 'Professional Experience',
-        items: [
-          {
-            id: 'exp-r1',
-            role: 'Full Stack Developer',
-            company: 'Apex Cloud Systems',
-            location: 'Hyderabad, India',
-            dates: 'March 2022 - Present',
-            bullets: [
-              {
-                id: 'b-r1',
-                text: 'Engineered responsive web application modules using React, TypeScript, and Node.js microservices.',
-                hasSuggestion: false
-              },
-              {
-                id: 'b-r2',
-                text: 'Optimized frontend query caching with Redis, reducing average page load latency by 28%.',
-                hasSuggestion: false
-              },
-              {
-                id: 'b-r3',
-                text: 'Helped implement CI/CD deployment pipelines using GitHub Actions and AWS ECS.',
-                hasSuggestion: true,
-                suggestionType: 'verb',
-                suggestionTitle: 'Active DevOps Ownership',
-                impactScore: 88,
-                suggestionDesc: 'Replace passive language with proactive release engineering.',
-                suggestedRewrite: 'Automated CI/CD container deployment pipelines using GitHub Actions and AWS ECS, streamlining production releases.'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'skills',
-        title: 'Skills & Technologies',
-        content: 'React, TypeScript, Node.js, Express, PostgreSQL, Redis, Docker, AWS, GraphQL, CI/CD, Next.js'
-      },
-      {
-        id: 'education',
-        title: 'Education',
-        content: 'B.Tech in Computer Science and Engineering — Jawaharlal Nehru Technological University (2022)'
-      }
-    ]
-  },
-  meera: {
-    id: 'res-meera-01',
-    title: 'Senior Systems Engineer — Meera Iyer',
-    targetRole: 'Systems Engineer',
-    matchScore: 90,
-    lastSaved: 'Just now',
-    candidate: {
-      name: 'Meera Iyer',
-      email: 'meera.iyer@email.com',
-      phone: '(+91) 98765-77665',
-      location: 'Chennai, India',
-      linkedin: 'linkedin.com/in/meeraiyer'
-    },
-    sections: [
-      {
-        id: 'summary',
-        title: 'Professional Summary',
-        content: 'Senior Systems Engineer with 5 years of experience in distributed infrastructure reliability, Linux kernel networking, and high-concurrency microservices. Dedicated to system observability and fault tolerance.'
-      },
-      {
-        id: 'experience',
-        title: 'Professional Experience',
-        items: [
-          {
-            id: 'exp-m1',
-            role: 'Senior Systems Engineer',
-            company: 'Nexus Infrastructure Tech',
-            location: 'Chennai, India',
-            dates: 'January 2021 - Present',
-            bullets: [
-              {
-                id: 'b-m1',
-                text: 'Maintained high availability for distributed microservices infrastructure across multi-region Kubernetes clusters.',
-                hasSuggestion: false
-              },
-              {
-                id: 'b-m2',
-                text: 'Automated telemetry and observability using Prometheus and Grafana dashboards.',
-                hasSuggestion: false
-              },
-              {
-                id: 'b-m3',
-                text: 'Refactored internal networking services in Go, reducing inter-service communication latency by 22%.',
-                hasSuggestion: false
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'skills',
-        title: 'Skills & Technologies',
-        content: 'Go, Python, Kubernetes, Docker, Linux Internals, Distributed Systems, Prometheus, Grafana, gRPC, Terraform'
-      },
-      {
-        id: 'education',
-        title: 'Education',
-        content: 'B.E. in Computer Engineering — Anna University, Chennai (2021, First Class with Distinction)'
-      }
-    ]
-  },
-};
+// No sample candidate library remains. Real users start from their own resume or a blank template.
+export const SAMPLE_RESUMES = {};
 
 // Target Job Descriptions
 export const DEFAULT_JDS = {
@@ -749,7 +471,7 @@ class StateStore {
       currentPersona: 'careerai',
       personas: PERSONAS,
       resume: workingResume,
-      resumeProfiles: [workingResume, SAMPLE_RESUMES.aarav, SAMPLE_RESUMES.rohan, SAMPLE_RESUMES.meera],
+      resumeProfiles: [workingResume],
       jobDescriptions: DEFAULT_JDS,
       currentJdKey: 'swe',
       hasActiveJd: true,
@@ -834,7 +556,7 @@ class StateStore {
   }
 
   login(email, password = '') {
-    const name = email.split('@')[0].replace('.', ' ') || 'Priya Sharma';
+    const name = email.split('@')[0].replace('.', ' ') || 'Your Name';
     const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
     
     this.state.auth = {
@@ -857,7 +579,7 @@ class StateStore {
   }
 
   signup(email, password = '', name = '') {
-    const displayName = name || email.split('@')[0] || 'Priya Sharma';
+    const displayName = name || email.split('@')[0] || 'Your Name';
     this.state.auth = {
       isAuthenticated: true,
       isGuest: false,
@@ -882,7 +604,7 @@ class StateStore {
   }
 
   loginWithGoogle() {
-    this.signup('priya.sharma@gmail.com', '', 'Priya Sharma');
+    this.signup('you@gmail.com', '', 'Your Name');
   }
 
   continueAsGuest() {
@@ -979,12 +701,12 @@ class StateStore {
       matchScore: parsedData.matchScore || 70,
       lastSaved: 'Just now',
       candidate: parsedData.candidate || {
-        name: 'Priya Sharma',
-        email: 'priya.sharma@email.com',
-        phone: '(+91) 98765-43210',
-        location: 'Bengaluru, India',
-        linkedin: 'linkedin.com/in/priyasharma',
-        github: 'github.com/priyasharma'
+        name: 'Your Name',
+        email: 'you@example.com',
+        phone: '(555) 000-0000',
+        location: 'City, Country',
+        linkedin: 'linkedin.com/in/yourprofile',
+        github: 'github.com/yourprofile'
       },
       sections: parsedData.sections || []
     };
@@ -1015,9 +737,9 @@ class StateStore {
     }
   }
 
-  loadSampleResume(sampleKey = 'priya') {
-    const sample = SAMPLE_RESUMES[sampleKey] || SAMPLE_RESUMES.priya;
-    this.state.resume = JSON.parse(JSON.stringify(sample));
+  loadSampleResume(sampleKey = '') {
+    const base = JSON.parse(JSON.stringify(DEFAULT_RESUME));
+    this.state.resume = base;
     this.state.resolvedSuggestions = [];
     this.saveState();
     this.notify();

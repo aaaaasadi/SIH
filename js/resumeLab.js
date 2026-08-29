@@ -4,7 +4,7 @@
  * and Dual-State AI Optimization Drawer (Locked vs Unlocked, 30s Undo, Highlighting, Keywords)
  */
 
-import { store, PERSONAS, SAMPLE_RESUMES } from './state.js';
+import { store } from './state.js';
 import { aiEngine } from './aiEngine.js';
 import { API_BASE_URL } from './api.js';
 
@@ -47,7 +47,7 @@ export class ResumeLabView {
       <div class="resume-lab-helper-strip" style="background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); border: 1px solid #C7D2FE; border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; color: #1E1B4B;">
           <span style="font-size: 1.2rem;">📤</span>
-          <span><strong>Resume Upload & Analysis:</strong> Upload a file (.pdf, .docx, .txt), paste text, or test sample profiles. Real-time ATS match scoring and AI rewrites update live on the right panel.</span>
+          <span><strong>Resume Upload & Analysis:</strong> Upload a file (.pdf, .docx, .txt) or paste your resume text to generate live ATS scoring and AI rewrites.</span>
         </div>
         <button class="btn-primary" id="btn-helper-upload" style="font-size: 0.78rem; padding: 6px 16px; font-weight: 700; white-space: nowrap;">
           Upload Your Resume File →
@@ -104,9 +104,9 @@ export class ResumeLabView {
           <!-- Document Canvas (Paper) -->
           <div class="resume-paper" id="resume-canvas" contenteditable="true" spellcheck="false">
             <div class="resume-header">
-              <div class="resume-candidate-name" id="res-name">${resume.candidate?.name || 'Priya Sharma'}</div>
+              <div class="resume-candidate-name" id="res-name">${resume.candidate?.name || 'Your Name'}</div>
               <div class="resume-contact-line" id="res-contact">
-                ${resume.candidate?.email || 'priya.sharma@email.com'} | ${resume.candidate?.phone || '(+91) 98765-43210'} | ${resume.candidate?.location || 'Bengaluru, India'} | ${resume.candidate?.linkedin || 'linkedin.com/in/priyasharma'}
+                ${resume.candidate?.email || 'you@example.com'} | ${resume.candidate?.phone || '(555) 000-0000'} | ${resume.candidate?.location || 'City, Country'} | ${resume.candidate?.linkedin || 'linkedin.com/in/yourprofile'}
               </div>
             </div>
 
@@ -423,7 +423,7 @@ export class ResumeLabView {
   }
 
   /**
-   * Open the Resume Upload Modal (File Dropzone, Paste as Text, Sample Resumes)
+   * Open the Resume Upload Modal (File Dropzone, Paste as Text, or Blank Resume)
    */
   openUploadModal() {
     const modalOverlay = document.getElementById('global-modal-overlay');
@@ -443,7 +443,6 @@ export class ResumeLabView {
       <div class="upload-tabs-header">
         <button class="upload-tab-btn active" data-tab="dropzone">📁 File Upload</button>
         <button class="upload-tab-btn" data-tab="paste" id="tab-paste-btn">📋 Paste as Text</button>
-        <button class="upload-tab-btn" data-tab="sample">⚡ Sample Resumes</button>
         <button class="upload-tab-btn" data-tab="blank">✍ Start from Scratch</button>
       </div>
 
@@ -482,32 +481,7 @@ export class ResumeLabView {
         </div>
       </div>
 
-      <!-- Tab 3: Sample Resumes -->
-      <div class="upload-tab-pane" id="pane-sample">
-        <p style="font-size: 0.85rem; color: #64748B; margin-bottom: 14px;">
-          Select a pre-seeded candidate profile to explore the ATS optimization and mock interview coaching features instantly:
-        </p>
-
-        <div class="sample-resumes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
-          ${Object.keys(PERSONAS).map(k => {
-            const p = PERSONAS[k];
-            return `
-              <div class="sample-card btn-select-sample" data-sample="${p.id}" style="padding: 12px; border: 1.5px solid #E2E8F0; border-radius: var(--radius-md); background: white; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                  <img src="${p.avatar}" class="sample-avatar" alt="${p.name}" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #CBD5E1;">
-                  <div>
-                    <strong style="font-size: 0.88rem; color: #0F172A; display: block;">${p.name}</strong>
-                    <div style="font-size: 0.72rem; color: var(--primary); font-weight: 700;">${p.role}</div>
-                  </div>
-                </div>
-                <div style="font-size: 0.74rem; color: #64748B; line-height: 1.35;">${p.bio}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
-      <!-- Tab 4: Start from Scratch Blank Builder (FR-1.12) -->
+      <!-- Tab 3: Start from Scratch Blank Builder (FR-1.12) -->
       <div class="upload-tab-pane" id="pane-blank">
         <div style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: var(--radius-lg); padding: 28px 20px; text-align: center;">
           <div style="font-size: 2rem; margin-bottom: 8px;">✍️</div>
@@ -571,24 +545,13 @@ export class ResumeLabView {
     document.getElementById('btn-paste-sample-text')?.addEventListener('click', () => {
       const txtArea = document.getElementById('inp-raw-resume-text');
       if (txtArea) {
-        txtArea.value = `Name: Priya Sharma\nLocation: Bengaluru, India\nPhone: (+91) 98765-43210\nEmail: priya.sharma@email.com\nLinkedIn: linkedin.com/in/priyasharma\nGitHub: github.com/priyasharma\n\nPROFESSIONAL SUMMARY\nSoftware Engineer with 5 years of experience in backend development, cloud infrastructure, and API design. Skilled in Python, Java, and AWS, with a proven record of improving system performance, reducing latency, and delivering scalable microservices. Strong background in Agile development, CI/CD pipelines, and cross-functional collaboration.\n\nSKILLS\nProgramming Languages: Python, Java, JavaScript, SQL\nFrameworks and Libraries: Django, Spring Boot, React, Node.js\nCloud Platforms: AWS (EC2, S3, Lambda, RDS), Google Cloud Platform, Microsoft Azure\nDatabases: MySQL, PostgreSQL, MongoDB, Redis\nDevOps and Tools: Docker, Kubernetes, Jenkins, Git, Terraform, CI/CD\nOther: REST API Design, Microservices Architecture, Agile/Scrum, Unit Testing, System Design\n\nPROFESSIONAL EXPERIENCE\n\nSoftware Engineer II\nInfosys Technologies | Bengaluru, India | June 2021 - Present\n- Developed and maintained RESTful APIs using Python and Django, supporting over 50,000 daily active users.\n- Reduced average API response time by 35 percent by optimizing database queries and implementing Redis caching.\n- Led migration of monolithic application to microservices architecture on AWS, improving deployment frequency by 40 percent.\n- Implemented automated CI/CD pipelines using Jenkins and Docker, reducing deployment time from 2 hours to 15 minutes.\n- Collaborated with a cross-functional team of 8 engineers in an Agile Scrum environment to deliver features on a two-week sprint cycle.\n- Mentored 3 junior engineers on best practices in code review, unit testing, and system design.\n\nSoftware Engineer\nWipro Limited | Pune, India | July 2019 - May 2021\n- Built backend services in Java and Spring Boot for an e-commerce order management system processing 10,000 orders per day.\n- Designed and implemented a MySQL database schema, improving query performance by 25 percent.\n- Wrote unit and integration tests using JUnit, increasing code coverage from 60 percent to 90 percent.\n- Participated in daily stand-ups, sprint planning, and retrospectives as part of an Agile development team.\n\nSoftware Development Intern\nTata Consultancy Services | Mumbai, India | January 2019 - June 2019\n- Assisted in developing internal tools using Python for automating data validation, saving the team 5 hours per week.\n- Contributed to front-end development using React and JavaScript for an internal reporting dashboard.\n\nEDUCATION\nBachelor of Technology in Computer Science and Engineering\nVisvesvaraya Technological University, Belagavi, India | Graduated May 2019 | CGPA: 8.7/10.0\n\nCERTIFICATIONS\nAWS Certified Solutions Architect - Associate (2022)\nCertified Kubernetes Application Developer, CKAD (2021)\nPython Institute PCEP - Certified Entry-Level Python Programmer (2020)\n\nPROJECTS\nReal-Time Chat Application - Built a scalable chat application using Node.js, Socket.io, and MongoDB, supporting 1,000 concurrent users with message delivery under 200 milliseconds.\nPersonal Finance Tracker - Developed a full-stack web application using Django and React for expense tracking and budget analysis, used by over 200 registered users.`;
+        txtArea.value = `Name: Your Name\nLocation: City, Country\nPhone: (555) 000-0000\nEmail: you@example.com\nLinkedIn: linkedin.com/in/yourprofile\nGitHub: github.com/yourprofile\n\nPROFESSIONAL SUMMARY\nResults-driven professional with experience leading work across product, engineering, and cross-functional teams. Skilled in building practical solutions, improving workflows, and delivering measurable outcomes in fast-paced environments.\n\nSKILLS\nCommunication, Problem Solving, Team Collaboration, Project Leadership, Data Analysis, Process Improvement\n\nPROFESSIONAL EXPERIENCE\n\nSoftware Engineer II\nInfosys Technologies | Bengaluru, India | June 2021 - Present\n- Developed and maintained RESTful APIs using Python and Django, supporting over 50,000 daily active users.\n- Reduced average API response time by 35 percent by optimizing database queries and implementing Redis caching.\n- Led migration of monolithic application to microservices architecture on AWS, improving deployment frequency by 40 percent.\n- Implemented automated CI/CD pipelines using Jenkins and Docker, reducing deployment time from 2 hours to 15 minutes.\n- Collaborated with a cross-functional team of 8 engineers in an Agile Scrum environment to deliver features on a two-week sprint cycle.\n- Mentored 3 junior engineers on best practices in code review, unit testing, and system design.\n\nSoftware Engineer\nWipro Limited | Pune, India | July 2019 - May 2021\n- Built backend services in Java and Spring Boot for an e-commerce order management system processing 10,000 orders per day.\n- Designed and implemented a MySQL database schema, improving query performance by 25 percent.\n- Wrote unit and integration tests using JUnit, increasing code coverage from 60 percent to 90 percent.\n- Participated in daily stand-ups, sprint planning, and retrospectives as part of an Agile development team.\n\nSoftware Development Intern\nTata Consultancy Services | Mumbai, India | January 2019 - June 2019\n- Assisted in developing internal tools using Python for automating data validation, saving the team 5 hours per week.\n- Contributed to front-end development using React and JavaScript for an internal reporting dashboard.\n\nEDUCATION\nBachelor of Technology in Computer Science and Engineering\nVisvesvaraya Technological University, Belagavi, India | Graduated May 2019 | CGPA: 8.7/10.0\n\nCERTIFICATIONS\nAWS Certified Solutions Architect - Associate (2022)\nCertified Kubernetes Application Developer, CKAD (2021)\nPython Institute PCEP - Certified Entry-Level Python Programmer (2020)\n\nPROJECTS\nReal-Time Chat Application - Built a scalable chat application using Node.js, Socket.io, and MongoDB, supporting 1,000 concurrent users with message delivery under 200 milliseconds.\nPersonal Finance Tracker - Developed a full-stack web application using Django and React for expense tracking and budget analysis, used by over 200 registered users.`;
       }
     });
 
     document.getElementById('btn-parse-pasted-resume')?.addEventListener('click', () => {
       const rawText = document.getElementById('inp-raw-resume-text')?.value || '';
       this.processRawResumeText(rawText, modalOverlay);
-    });
-
-    // Sample Resume Buttons (FR-1.11)
-    modalOverlay.querySelectorAll('.btn-select-sample').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const sampleKey = e.currentTarget.getAttribute('data-sample');
-        store.setPersona(sampleKey);
-        modalOverlay.classList.remove('active');
-        window.showToast?.(`Loaded ${PERSONAS[sampleKey]?.name || sampleKey}'s sample resume & profile!`, 'success');
-        this.render(this.container);
-      });
     });
 
     // Start from Scratch Blank Builder (FR-1.12)
@@ -809,7 +772,7 @@ export class ResumeLabView {
         <div class="correction-fields-pane">
           <div class="form-group-item">
             <label>Candidate Name & Contact</label>
-            <input type="text" id="corr-name" value="${parsedData.candidate?.name || 'Priya Sharma'}" class="field-input">
+            <input type="text" id="corr-name" value="${parsedData.candidate?.name || 'Your Name'}" class="field-input">
           </div>
 
           <div class="form-group-item">
