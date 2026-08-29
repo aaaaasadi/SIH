@@ -28,6 +28,15 @@ export const PERSONAS = {
   careerai: CAREERAI_PROFILE
 };
 
+export const USER_PROFILE = {
+  name: 'Your Name',
+  email: 'you@example.com',
+  phone: '(555) 000-0000',
+  location: 'City, Country',
+  linkedin: 'linkedin.com/in/yourprofile',
+  github: 'github.com/yourprofile'
+};
+
 // The app does not ship with demo candidate identities. It starts from a clean blank profile.
 export const DEFAULT_RESUME = {
   id: 'res-user-blank',
@@ -35,14 +44,7 @@ export const DEFAULT_RESUME = {
   targetRole: 'Target Role',
   matchScore: 50,
   lastSaved: 'Just now',
-  candidate: {
-    name: 'Your Name',
-    email: 'you@example.com',
-    phone: '(555) 000-0000',
-    location: 'City, Country',
-    linkedin: 'linkedin.com/in/yourprofile',
-    github: 'github.com/yourprofile'
-  },
+  candidate: { ...USER_PROFILE },
   sections: [
     {
       id: 'summary',
@@ -90,11 +92,12 @@ export const BLANK_RESUME_TEMPLATE = {
   matchScore: 50,
   lastSaved: 'Just now',
   candidate: {
-    name: 'Your Full Name',
-    email: 'your.name@email.com',
-    phone: '(555) 000-0000',
-    location: 'City, State',
-    linkedin: 'linkedin.com/in/yourprofile'
+    name: USER_PROFILE.name,
+    email: USER_PROFILE.email,
+    phone: USER_PROFILE.phone,
+    location: USER_PROFILE.location,
+    linkedin: USER_PROFILE.linkedin,
+    github: USER_PROFILE.github
   },
   sections: [
     {
@@ -556,7 +559,7 @@ class StateStore {
   }
 
   login(email, password = '') {
-    const name = email.split('@')[0].replace('.', ' ') || 'Your Name';
+    const name = email.split('@')[0].replace('.', ' ') || USER_PROFILE.name;
     const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
     
     this.state.auth = {
@@ -579,7 +582,7 @@ class StateStore {
   }
 
   signup(email, password = '', name = '') {
-    const displayName = name || email.split('@')[0] || 'Your Name';
+    const displayName = name || email.split('@')[0] || USER_PROFILE.name;
     this.state.auth = {
       isAuthenticated: true,
       isGuest: false,
