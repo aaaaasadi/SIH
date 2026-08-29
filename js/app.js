@@ -10,7 +10,6 @@ import { resumeLabView } from './resumeLab.js';
 import { interviewCoachView } from './interviewCoach.js';
 import { analyticsView } from './analyticsView.js';
 import { jobTrackerView } from './jobTracker.js';
-import { complianceSettingsView } from './compliance.js';
 import { roadmapView } from './roadmapView.js';
 import { careerAiAssistant } from './assistant.js';
 
